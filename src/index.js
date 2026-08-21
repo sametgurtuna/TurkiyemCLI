@@ -11,7 +11,15 @@ import { depremSon24, deprem7Gun, depremBuyukluk } from './commands/deprem.js';
 import { havaGuncel, havaKalitesi, havaSaatlik } from './commands/hava.js';
 import { temizle } from './commands/temizle.js';
 import { dovizKurlari } from './commands/doviz.js';
-import { eczaneNobetci, eczaneAra } from './commands/eczane.js';
+import {
+  eczaneNobetci,
+  eczaneAra,
+  eczaneDetay,
+  eczaneSehirler,
+  eczaneIlceler,
+  eczaneYakin,
+  eczaneKeyAyarla
+} from './commands/eczane.js';
 import { ibbHatlar, ibbDuraklar, ibbFilo, ibbGaraj, ibbKaza } from './commands/ibb.js';
 import { registerIzsuCommands } from './commands/izsu.js';
 
@@ -124,13 +132,50 @@ havaCmd
 
 const eczaneCmd = program
   .command('eczane')
-  .description('Eczane işlemleri (İzmir ve Kayseri)');
+  .description('Nöbetçi eczane ve detay sorguları (81 İl / EczaneAPI & Açık Veri)');
 
 eczaneCmd
   .command('nobetci [ilce]')
-  .description('Nöbetçi eczaneleri sorgula (İlçe filtreli)')
-  .action(async (ilce) => {
-    await eczaneNobetci(ilce);
+  .description('Nöbetçi eczaneleri listele (İlçe filtreli)')
+  .option('-s, --sehir <sehir>', 'Belirli bir şehir için sorgula')
+  .option('-t, --tarih <tarih>', 'Belirli bir tarih için sorgula')
+  .action(async (ilce, options) => {
+    await eczaneNobetci(ilce, options);
+  });
+
+eczaneCmd
+  .command('detay <eczaneId>')
+  .description('Belirtilen eczanenin detay bilgilerini göster')
+  .action(async (eczaneId) => {
+    await eczaneDetay(eczaneId);
+  });
+
+eczaneCmd
+  .command('sehirler')
+  .description('EczaneAPI 81 il listesi ve istatistikleri')
+  .action(async () => {
+    await eczaneSehirler();
+  });
+
+eczaneCmd
+  .command('ilceler [sehirSlug]')
+  .description('Belirtilen ilin ilçelerini ve eczane sayılarını listele')
+  .action(async (sehirSlug) => {
+    await eczaneIlceler(sehirSlug);
+  });
+
+eczaneCmd
+  .command('yakin <lat> <lng> [radius]')
+  .description('Konuma en yakın nöbetçi eczaneleri mesafeyle listele')
+  .action(async (lat, lng, radius) => {
+    await eczaneYakin(lat, lng, radius);
+  });
+
+eczaneCmd
+  .command('key [apiKey]')
+  .description('EczaneAPI anahtarını kaydet veya kontrol et')
+  .action((apiKey) => {
+    eczaneKeyAyarla(apiKey);
   });
 
 eczaneCmd

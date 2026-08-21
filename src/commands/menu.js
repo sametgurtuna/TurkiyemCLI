@@ -34,7 +34,7 @@ const subcommands = {
     'hat': ['canli'],
     'hava': ['guncel', 'saatlik', 'kalite'],
     'deprem': ['son24', '7gun', 'buyukluk'],
-    'eczane': ['nobetci', 'ara'],
+    'eczane': ['nobetci', 'detay', 'sehirler', 'ilceler', 'yakin', 'key', 'ara'],
     'ibb': ['hatlar', 'duraklar', 'filo', 'garaj', 'kaza'],
     'izsu': ['kesinti', 'baraj', 'uretim', 'sube', 'analiz']
 };

@@ -231,12 +231,22 @@ turkiyem izsu sube               # İZSU şubeleri
 turkiyem izsu analiz             # Haftalık su kalite analizleri
 ```
 
-### Sağlık & Nöbetçi Eczane
+### Sağlık & Nöbetçi Eczane (EczaneAPI & Açık Veri)
 
 ```bash
-turkiyem eczane nobetci          # Seçili şehirdeki (İzmir, Kayseri) tüm nöbetçi eczaneler
-turkiyem eczane nobetci karsiyaka # Belirli bir ilçe için arama
-turkiyem eczane ara derman       # Eczane adı / adresine göre arama
+# Nöbetçi Eczaneler (81 İl EczaneAPI veya İzmir/Kayseri Açık Veri)
+turkiyem eczane nobetci                 # Seçili şehirdeki tüm nöbetçi eczaneler
+turkiyem eczane nobetci kadikoy         # İlçe filtreli arama (örn: Kadıköy, Karşıyaka, Melikgazi)
+turkiyem eczane nobetci -s ankara -t 2026-03-01 # Şehir ve tarih filtreli
+
+# Eczane Detayı & İstatistikler
+turkiyem eczane detay <eczaneId>        # Eczanenin sahibi, 24 saat durumu, çalışma saatleri ve harita
+turkiyem eczane sehirler                # 81 ilin eczane ve ilçe istatistikleri
+turkiyem eczane ilceler istanbul        # Belirtilen ilin ilçeleri ve eczane sayıları
+turkiyem eczane yakin 41.0082 28.9784 5 # Koordinata en yakın nöbetçi eczaneler (5 km yarıçap)
+
+# API Anahtarı Tanımlama (81 İl için https://eczaneapi.com)
+turkiyem eczane key <API_KEY>           # EczaneAPI anahtarını yapılandır
 ```
 
 ### Deprem (AFAD)

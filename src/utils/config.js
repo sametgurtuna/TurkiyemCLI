@@ -5,7 +5,7 @@ import os from 'node:os';
 const CONFIG_DIR = path.join(os.homedir(), '.turkiyem');
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
 
-const DEFAULT_CONFIG = { city: null };
+const DEFAULT_CONFIG = { city: null, eczaneApiKey: null };
 
 function ensureDir() {
   fs.mkdirSync(CONFIG_DIR, { recursive: true });
@@ -24,7 +24,7 @@ export function readConfig() {
       writeConfig(DEFAULT_CONFIG);
       return { ...DEFAULT_CONFIG };
     }
-    return parsed;
+    return { ...DEFAULT_CONFIG, ...parsed };
   } catch {
     writeConfig(DEFAULT_CONFIG);
     return { ...DEFAULT_CONFIG };
@@ -44,6 +44,20 @@ export function getCity() {
 export function setCity(city) {
   const config = readConfig();
   config.city = city;
+  writeConfig(config);
+}
+
+export function getEczaneApiKey() {
+  if (process.env.ECZANE_API_KEY) {
+    return process.env.ECZANE_API_KEY.trim();
+  }
+  const config = readConfig();
+  return config.eczaneApiKey || null;
+}
+
+export function setEczaneApiKey(key) {
+  const config = readConfig();
+  config.eczaneApiKey = key ? key.trim() : null;
   writeConfig(config);
 }
 
