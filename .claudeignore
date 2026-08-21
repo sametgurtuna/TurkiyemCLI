@@ -1,0 +1,10 @@
+node_modules/
+.git/
+
+# Loglar
+error_log.txt
+error_log_cmd.txt
+*.log
+
+# Bagimlilik kilidi (buyuk, nadiren okunmasi gerekir)
+package-lock.json

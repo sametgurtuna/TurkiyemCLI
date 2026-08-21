@@ -2,15 +2,27 @@ import chalk from 'chalk';
 import readline from 'node:readline';
 import { printBanner } from '../utils/banner.js';
 import { getCity } from '../utils/config.js';
+import { colors, icons, divider } from '../utils/theme.js';
+
+function printIntro() {
+    console.log(colors.title(`  🇹🇷 Sürekli oturum modu`) + colors.muted(' — komutları doğrudan yazabilirsiniz (örn: hat 500T, deprem son24)\n'));
+    console.log(colors.muted(`  Tüm komutları görmek için ${colors.cyan('help')}${colors.muted(', çıkmak için')} ${colors.cyan('exit')}${colors.muted(' yazın.\n')}`));
+}
 
 function printSessionHeader() {
     const city = getCity();
-    const cityLabel = city ? chalk.green.bold(city) : chalk.yellow('seçilmedi');
+    const cityLabel = city ? colors.success.bold(city) : colors.warn('seçilmedi');
     console.log('');
-    console.log(chalk.gray('─'.repeat(60)));
-    console.log(chalk.gray(`  🏙️  Aktif şehir: ${cityLabel}  │  ${chalk.gray('Çıkmak için: Ctrl+C veya "exit"')}`));
-    console.log(chalk.gray('─'.repeat(60)));
+    console.log(divider());
+    console.log(colors.muted(`  ${icons.city}  Aktif şehir: `) + cityLabel + colors.muted(`   │   ${icons.help} help   │   Ctrl+C / exit ile çık`));
+    console.log(divider());
     console.log('');
+}
+
+function printScreen() {
+    console.clear();
+    printBanner();
+    printIntro();
 }
 
 const commands = [
@@ -50,16 +62,13 @@ function completer(line) {
 }
 
 export async function showMenu() {
-    console.clear();
-    printBanner();
-    console.log(chalk.white.bold('  🇹🇷 Sürekli oturum modu — Komutları direkt yazabilirsiniz (Örn: hat 500T, deprem son24)\n'));
-    console.log(chalk.gray('  Tüm komutları görmek için "help" yazabilirsiniz.\n'));
+    printScreen();
 
     const rl = readline.createInterface({
         input: process.stdin,
         output: process.stdout,
         completer: completer,
-        prompt: chalk.cyan('turkiyem > '),
+        prompt: colors.accentBold('turkiyem') + colors.muted(' ❯ '),
         historySize: 200 // Yukarı/aşağı ok tuşu arabellek boyutu
     });
 
@@ -71,17 +80,14 @@ export async function showMenu() {
 
         if (cmd.toLowerCase() === 'exit' || cmd.toLowerCase() === 'çıkış') {
             console.log('');
-            console.log(chalk.cyan('  Görüşmek üzere! 🇹🇷👋'));
+            console.log(colors.cyan(`  Görüşmek üzere! ${icons.exit}`));
             console.log('');
             rl.close();
             return;
         }
 
         if (cmd.toLowerCase() === 'clear') {
-            console.clear();
-            printBanner();
-            console.log(chalk.white.bold('  🇹🇷 Sürekli oturum modu — Komutları direkt yazabilirsiniz (Örn: hat 500T, deprem son24)\n'));
-            console.log(chalk.gray('  Tüm komutları görmek için "help" yazabilirsiniz.\n'));
+            printScreen();
             printSessionHeader();
             rl.prompt();
             return;
@@ -94,7 +100,7 @@ export async function showMenu() {
                 const { spawnSync } = await import('node:child_process');
                 spawnSync(process.argv[0], [process.argv[1], ...args], { stdio: 'inherit' });
             } catch (err) {
-                console.log(chalk.red(`\n  Komut çalıştırılamadı: ${err.message}`));
+                console.log(colors.error(`\n  Komut çalıştırılamadı: ${err.message}`));
             }
         }
 

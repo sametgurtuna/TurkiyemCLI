@@ -1,5 +1,11 @@
 import chalk from 'chalk';
 import gradient from 'gradient-string';
+import boxen from 'boxen';
+import { createRequire } from 'node:module';
+import { colors, icons } from './theme.js';
+
+const require = createRequire(import.meta.url);
+const pkg = require('../../package.json');
 
 const logo = `
   ████████╗██╗   ██╗██████╗ ██╗  ██╗██╗██╗   ██╗███████╗███╗   ███╗
@@ -10,44 +16,117 @@ const logo = `
      ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝   ╚══════╝╚═╝     ╚═╝
 `;
 
-const BANNER = `
-${gradient('red', 'white')(logo)}
-                          ${chalk.white.bold('☾ ★')}
+const turkishFlagGradient = gradient(['#E30A17', '#ffffff', '#E30A17']);
 
-       ${gradient('white', 'red')('Türkiye Toplu Taşıma ve Deprem CLI')}
-`;
+function buildBanner() {
+  const subtitle = `🇹🇷 Türkiye Toplu Taşıma, Deprem & Hava Durumu CLI  ${chalk.dim(`v${pkg.version}`)}`;
+
+  return [
+    turkishFlagGradient(logo),
+    '  ' + chalk.white.bold(subtitle),
+    '',
+  ].join('\n');
+}
 
 export function printBanner() {
-  console.log(BANNER);
+  console.log(buildBanner());
+}
+
+const CATEGORIES = [
+  {
+    title: 'Şehir & Genel',
+    icon: icons.city,
+    rows: [
+      ['turkiyem sehir [şehir]', 'Şehir seç veya listele (istanbul, ankara, izmir, ...)'],
+      ['turkiyem menu', 'Sürekli oturum (REPL) modunu başlat'],
+      ['turkiyem temizle', 'Önbelleği ve ayarları sıfırla'],
+      ['turkiyem --version', 'Sürüm numarasını göster'],
+    ],
+  },
+  {
+    title: 'Toplu Taşıma',
+    icon: icons.route,
+    rows: [
+      ['turkiyem hat <numara>', 'Hat bilgisi ve sefer saatlerini sorgula'],
+      ['turkiyem hat canli <numara> [--detay]', 'Canlı araç konumu (İstanbul, Bursa)'],
+      ['turkiyem durak <id|isim>', 'Durak bazlı detay sorgula'],
+    ],
+  },
+  {
+    title: 'İBB / İETT',
+    icon: icons.ibb,
+    rows: [
+      ['turkiyem ibb hatlar [arama]', 'IETT hat listesini sorgula/filtrele'],
+      ['turkiyem ibb duraklar [arama]', 'IETT durak listesini sorgula/ara'],
+      ['turkiyem ibb filo', 'IETT filo araç konumlarını göster'],
+      ['turkiyem ibb garaj', 'IETT garaj bilgilerini göster'],
+      ['turkiyem ibb kaza', 'Güncel kaza lokasyonlarını göster'],
+    ],
+  },
+  {
+    title: 'İZSU (İzmir Su & Baraj)',
+    icon: icons.water,
+    rows: [
+      ['turkiyem izsu kesinti', 'Güncel su kesintileri'],
+      ['turkiyem izsu baraj', 'Baraj ve kuyu doluluk oranları'],
+      ['turkiyem izsu uretim [-g|-y]', 'Günlük/yıllık su üretimi dağılımı'],
+      ['turkiyem izsu sube [-v]', 'İZSU şube ve vezneleri'],
+      ['turkiyem izsu analiz [-h|-c|-b]', 'Su analiz raporları'],
+    ],
+  },
+  {
+    title: 'Deprem (AFAD)',
+    icon: icons.quake,
+    rows: [
+      ['turkiyem deprem son24', 'Son 24 saatteki depremler'],
+      ['turkiyem deprem 7gun', 'Son 7 gündeki depremler'],
+      ['turkiyem deprem buyukluk <değer>', 'Büyüklüğe göre deprem filtrele'],
+    ],
+  },
+  {
+    title: 'Hava Durumu (Open-Meteo)',
+    icon: icons.weather,
+    rows: [
+      ['turkiyem hava guncel [şehir|lat,lon]', 'Güncel hava durumu'],
+      ['turkiyem hava saatlik [şehir|lat,lon] -g 2', 'Saatlik hava tahmini'],
+      ['turkiyem hava kalite [şehir|lat,lon]', 'Hava kalitesi ölçümleri'],
+    ],
+  },
+  {
+    title: 'Sağlık & Döviz',
+    icon: icons.pharmacy,
+    rows: [
+      ['turkiyem eczane nobetci [ilçe]', 'Nöbetçi eczaneleri sorgula (İzmir, Kayseri)'],
+      ['turkiyem eczane ara <kelime>', 'Eczane adı/adresine göre ara'],
+      ['turkiyem doviz [--tum]', 'TCMB güncel döviz kurları'],
+    ],
+  },
+];
+
+function padCommand(cmd, width) {
+  return cmd.length >= width ? cmd : cmd + ' '.repeat(width - cmd.length);
 }
 
 export function printHelp() {
   printBanner();
-  console.log(chalk.white.bold('  Komutlar:\n'));
-  console.log(chalk.cyan('    turkiyem sehir <ankara|istanbul|adana|antalya|bursa|izmir|trabzon|samsun|mersin|kayseri>') + chalk.gray('\n                                              Şehir seç'));
-  console.log(chalk.cyan('    turkiyem hat <numara>') + chalk.gray('             Hat sorgula'));
-  console.log(chalk.cyan('    turkiyem hat canli <numara> [--detay]') + chalk.gray('  Canlı araç konumu (IETT)'));
-  console.log(chalk.cyan('    turkiyem durak <id>') + chalk.gray('               Durak bazlı detay sorgula'));
-  console.log(chalk.cyan('    turkiyem hava guncel [sehir|lat,lon]') + chalk.gray('  Güncel hava durumu'));
-  console.log(chalk.cyan('    turkiyem hava saatlik [sehir|lat,lon] -g 2') + chalk.gray('  Saatlik hava tahmini'));
-  console.log(chalk.cyan('    turkiyem hava kalite [sehir|lat,lon]') + chalk.gray('  Hava kalitesi ölçümleri'));
-  console.log(chalk.cyan('    turkiyem deprem son24') + chalk.gray('             Son 24 saatteki depremler'));
-  console.log(chalk.cyan('    turkiyem deprem 7gun') + chalk.gray('              Son 7 gündeki depremler'));
-  console.log(chalk.cyan('    turkiyem deprem buyukluk <deger>') + chalk.gray('  Büyüklüğe göre deprem filtrele'));
-  console.log(chalk.cyan('    turkiyem eczane nobetci [ilce]') + chalk.gray('    Nöbetçi eczaneleri sorgula (Sadece İzmir ve Kayseri)'));
-  console.log(chalk.cyan('    turkiyem eczane ara <kelime>') + chalk.gray('      Eczane adına veya ilçeye göre ara (Sadece İzmir ve Kayseri)'));
-  console.log(chalk.cyan('    turkiyem doviz [--tum]') + chalk.gray('            TCMB güncel döviz kurları'));
-  console.log(chalk.cyan('    turkiyem ibb hatlar [arama]') + chalk.gray('       İBB/IETT hat listesi sorgula'));
-  console.log(chalk.cyan('    turkiyem ibb duraklar [arama]') + chalk.gray('    İBB/IETT durak listesi sorgula'));
-  console.log(chalk.cyan('    turkiyem ibb filo') + chalk.gray('                 IETT filo araç konumları'));
-  console.log(chalk.cyan('    turkiyem ibb garaj') + chalk.gray('                IETT garaj bilgileri'));
-  console.log(chalk.cyan('    turkiyem ibb kaza') + chalk.gray('                 Güncel kaza lokasyonları'));
-  console.log(chalk.cyan('    turkiyem izsu kesinti') + chalk.gray('             İZSU güncel su kesintileri'));
-  console.log(chalk.cyan('    turkiyem izsu baraj') + chalk.gray('               İZSU baraj ve kuyu durumları'));
-  console.log(chalk.cyan('    turkiyem izsu uretim [-g] [-y]') + chalk.gray('    İZSU günlük/yıllık su üretimi dağılımı'));
-  console.log(chalk.cyan('    turkiyem izsu sube [-v]') + chalk.gray('           İZSU şube ve vezneleri'));
-  console.log(chalk.cyan('    turkiyem izsu analiz [-h|-c|-b]') + chalk.gray('   İZSU su analiz raporları'));
-  console.log(chalk.cyan('    turkiyem temizle') + chalk.gray('                  Cache ve ayarları temizle'));
-  console.log(chalk.cyan('    turkiyem --version') + chalk.gray('                Versiyonu göster'));
+
+  const allCmds = CATEGORIES.flatMap((c) => c.rows.map(([cmd]) => cmd));
+  const cmdWidth = Math.min(44, Math.max(...allCmds.map((c) => c.length)) + 2);
+
+  for (const category of CATEGORIES) {
+    console.log(colors.accentBold(`  ${category.icon}  ${category.title}`));
+    for (const [cmd, desc] of category.rows) {
+      console.log(`    ${colors.cyan(padCommand(cmd, cmdWidth))} ${colors.muted(desc)}`);
+    }
+    console.log('');
+  }
+
+  console.log(
+    boxen(
+      `${chalk.white('Yardım her zaman burada:')} ${colors.cyan('turkiyem help')}\n` +
+      `${chalk.white('Kalıcı oturum için:')}      ${colors.cyan('turkiyem menu')}`,
+      { padding: { left: 1, right: 1, top: 0, bottom: 0 }, borderColor: 'gray', borderStyle: 'round' }
+    )
+  );
   console.log('');
 }
