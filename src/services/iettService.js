@@ -202,7 +202,7 @@ function buildLiveSoapBody(routeCode) {
                xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
   <soap:Body>
     <GetHatOtoKonum_json xmlns="http://tempuri.org/">
-      <HatNo>${routeCode}</HatNo>
+      <HatKodu>${routeCode}</HatKodu>
     </GetHatOtoKonum_json>
   </soap:Body>
 </soap:Envelope>`;
