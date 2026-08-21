@@ -26,7 +26,7 @@ function printScreen() {
 }
 
 const commands = [
-    'sehir', 'hat', 'durak', 'hava', 'deprem', 'eczane', 'doviz', 'ibb', 'izsu', 'temizle', 'help', 'clear', 'exit', 'çıkış'
+    'sehir', 'hat', 'durak', 'hava', 'deprem', 'eczane', 'sarj', 'doviz', 'ibb', 'izsu', 'temizle', 'help', 'clear', 'exit', 'çıkış'
 ];
 
 const subcommands = {
@@ -35,6 +35,7 @@ const subcommands = {
     'hava': ['guncel', 'saatlik', 'kalite'],
     'deprem': ['son24', '7gun', 'buyukluk'],
     'eczane': ['nobetci', 'detay', 'sehirler', 'ilceler', 'yakin', 'key', 'ara'],
+    'sarj': ['saglayicilar', 'ara', 'detay'],
     'ibb': ['hatlar', 'duraklar', 'filo', 'garaj', 'kaza'],
     'izsu': ['kesinti', 'baraj', 'uretim', 'sube', 'analiz']
 };

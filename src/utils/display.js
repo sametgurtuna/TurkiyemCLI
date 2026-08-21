@@ -4,3 +4,4 @@ export * from '../displays/financeDisplay.js';
 export * from '../displays/pharmacyDisplay.js';
 export * from '../displays/transportDisplay.js';
 export * from '../displays/izsuDisplay.js';
+export * from '../displays/sarjDisplay.js';

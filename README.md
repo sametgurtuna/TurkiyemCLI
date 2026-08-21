@@ -31,7 +31,8 @@
   - [Durak Sorgulama](#durak-sorgulama)
   - [Canlı Konum & Filo](#canlı-konum--filo)
   - [İZSU (İzmir Su & Baraj)](#izsu-izmir-su--baraj)
-  - [Sağlık & Nöbetçi Eczane](#sağlık--nöbetçi-eczane)
+  - [Sağlık & Nöbetçi Eczane](#sağlık--nöbetçi-eczane-eczaneapi--açık-veri)
+  - [Elektrikli Araç Şarj İstasyonları](#-elektrikli-araç-şarj-istasyonları-sarjdev)
   - [Deprem (AFAD)](#deprem-afad)
   - [Hava Durumu & Kalite](#hava-durumu--kalite)
   - [Döviz Kurları (TCMB)](#döviz-kurları-tcmb)
@@ -247,6 +248,21 @@ turkiyem eczane yakin 41.0082 28.9784 5 # Koordinata en yakın nöbetçi eczanel
 
 # API Anahtarı Tanımlama (81 İl için https://eczaneapi.com)
 turkiyem eczane key <API_KEY>           # EczaneAPI anahtarını yapılandır
+```
+
+### ⚡ Elektrikli Araç Şarj İstasyonları (sarj.dev)
+
+```bash
+# Şarj Sağlayıcıları (ZES, Trugo, Eşarj, Voltrun, Sharz, Beefull, Astor vb.)
+turkiyem sarj saglayicilar               # Tüm şarj sağlayıcıları ve istasyon sayıları
+
+# İstasyon Arama (Şehir, İlçe veya Sağlayıcı Bazlı)
+turkiyem sarj ara kadikoy                # Kadıköy'deki şarj istasyonları
+turkiyem sarj ara zes                    # ZES şarj istasyonları
+turkiyem sarj ara trugo -s ankara        # Ankara'daki Trugo istasyonları
+
+# İstasyon Detayları, Soketler ve Fiyatlandırma
+turkiyem sarj detay 14586117             # Soket tipleri (CCS/Type2), kW güç, AC/DC ve fiyat bilgileri
 ```
 
 ### Deprem (AFAD)

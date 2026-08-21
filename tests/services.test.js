@@ -85,3 +85,10 @@ test('Mersin Transit Service', async () => {
   const routes = await fetchMersinRoutes('TUM');
   assert.ok(Array.isArray(routes) && routes.length > 10, 'Mersin hat listesi gelmeli');
 });
+
+test('EV Charging Providers Service (sarj.dev)', async () => {
+  const { fetchChargingProviders } = await import('../src/services/sarjService.js');
+  const providers = await fetchChargingProviders();
+  assert.ok(Array.isArray(providers) && providers.length > 0, 'Şarj sağlayıcıları listesi gelmeli');
+  assert.ok(providers.some(p => (p.slug || p.code || '').toLowerCase().includes('zes') || (p.name || '').includes('ZES')));
+});

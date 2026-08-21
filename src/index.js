@@ -20,6 +20,7 @@ import {
   eczaneYakin,
   eczaneKeyAyarla
 } from './commands/eczane.js';
+import { sarjSaglayicilar, sarjAra, sarjDetay } from './commands/sarj.js';
 import { ibbHatlar, ibbDuraklar, ibbFilo, ibbGaraj, ibbKaza } from './commands/ibb.js';
 import { registerIzsuCommands } from './commands/izsu.js';
 
@@ -183,6 +184,33 @@ eczaneCmd
   .description('Tüm eczanelerde kelime veya ilçeye göre arama yap')
   .action(async (kelime) => {
     await eczaneAra(kelime);
+  });
+
+const sarjCmd = program
+  .command('sarj')
+  .description('Elektrikli araç şarj istasyonları ve sağlayıcı sorguları (sarj.dev)');
+
+sarjCmd
+  .command('saglayicilar')
+  .alias('liste')
+  .description('Tüm şarj istasyonu sağlayıcılarını listele (ZES, Trugo, Eşarj vb.)')
+  .action(async () => {
+    await sarjSaglayicilar();
+  });
+
+sarjCmd
+  .command('ara [sorgu]')
+  .description('Şehir, ilçe veya sağlayıcı adına göre şarj istasyonu ara')
+  .option('-s, --sehir <sehir>', 'Belirli bir şehir için filtrele')
+  .action(async (sorgu, options) => {
+    await sarjAra(sorgu, options);
+  });
+
+sarjCmd
+  .command('detay <istasyonId>')
+  .description('Belirtilen şarj istasyonunun detaylı soket, güç ve adres bilgilerini göster')
+  .action(async (istasyonId) => {
+    await sarjDetay(istasyonId);
   });
 
 program
