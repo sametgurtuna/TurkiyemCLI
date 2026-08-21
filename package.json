@@ -1,6 +1,6 @@
 {
   "name": "turkiyem",
-  "version": "1.18.0",
+  "version": "2.0.0",
   "description": "Türkiye Toplu Taşıma, Deprem, Eczane, Şarj İstasyonları ve Hava Durumu CLI aracı",
   "type": "module",
   "main": "./src/index.js",
