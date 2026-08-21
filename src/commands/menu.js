@@ -26,12 +26,16 @@ function printScreen() {
 }
 
 const commands = [
-    'sehir', 'hat', 'durak', 'hava', 'deprem', 'eczane', 'sarj', 'doviz', 'ibb', 'izsu', 'temizle', 'help', 'clear', 'exit', 'çıkış'
+    'sehir', 'hat', 'durak', 'yakit', 'benzin', 'namaz', 'ezan', 'trafik', 'vapur', 'hava', 'deprem', 'eczane', 'sarj', 'doviz', 'ibb', 'izsu', 'temizle', 'help', 'clear', 'exit', 'çıkış'
 ];
 
 const subcommands = {
     'sehir': ['ankara', 'istanbul', 'adana', 'antalya', 'bursa', 'izmir', 'trabzon', 'samsun', 'mersin', 'kayseri'],
     'hat': ['canli'],
+    'yakit': ['istanbul', 'ankara', 'izmir', 'bursa', 'antalya', 'adana'],
+    'benzin': ['istanbul', 'ankara', 'izmir', 'bursa', 'antalya', 'adana'],
+    'namaz': ['istanbul', 'ankara', 'izmir', 'bursa', 'antalya', 'adana', 'konya', 'diyarbakir'],
+    'vapur': ['istanbul', 'izmir', 'iskeleler'],
     'hava': ['guncel', 'saatlik', 'kalite'],
     'deprem': ['son24', '7gun', 'buyukluk'],
     'eczane': ['nobetci', 'detay', 'sehirler', 'ilceler', 'yakin', 'key', 'ara'],

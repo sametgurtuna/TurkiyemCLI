@@ -3,17 +3,17 @@
   <img src="https://img.shields.io/badge/node-%3E%3D20-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="node" />
   <img src="https://img.shields.io/npm/l/turkiyem?style=for-the-badge&color=blue" alt="license" />
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=for-the-badge" alt="platform" />
-  <img src="https://img.shields.io/badge/tests-16%20passed-brightgreen?style=for-the-badge" alt="tests" />
+  <img src="https://img.shields.io/badge/tests-20%20passed-brightgreen?style=for-the-badge" alt="tests" />
 </p>
 
 <h1 align="center">🇹🇷 turkiyem</h1>
 
 <p align="center">
-  <strong>Türkiye'nin en kapsamlı terminal tabanlı toplu taşıma, deprem, hava durumu, su kesintisi, nöbetçi eczane ve elektrikli araç şarj istasyonu CLI aracı.</strong>
+  <strong>Türkiye'nin en kapsamlı terminal tabanlı toplu taşıma, akaryakıt, namaz vakitleri, trafik endeksi, deprem, vapur, hava durumu, su kesintisi, nöbetçi eczane ve elektrikli araç şarj istasyonu CLI aracı.</strong>
 </p>
 
 <p align="center">
-  10 şehrin toplu taşıma verileri, 81 ilin nöbetçi eczaneleri, elektrikli araç şarj istasyonları (sarj.dev), İZSU su kesintisi & baraj verileri, AFAD deprem bilgileri, Open-Meteo hava durumu, TCMB döviz kurları — hepsi tek bir <code>npm</code> paketi içinde.
+  10 şehrin toplu taşıma verileri, 81 ilin nöbetçi eczaneleri & akaryakıt fiyatları, Diyanet namaz vakitleri, İBB canlı trafik endeksi, vapur seferleri, elektrikli araç şarj istasyonları (sarj.dev), İZSU su kesintisi & baraj verileri, AFAD deprem bilgileri, Open-Meteo hava durumu, TCMB döviz kurları — hepsi tek bir <code>npm</code> paketi içinde.
 </p>
 
 ---
@@ -29,6 +29,10 @@
   - [Toplu Taşıma (Hat & Sefer Saatleri)](#toplu-taşıma-hat--sefer-saatleri)
   - [Durak Sorgulama](#durak-sorgulama)
   - [Canlı Konum & Filo](#canlı-konum--filo)
+  - [⛽ Akaryakıt Fiyatları (Benzin, Motorin, LPG)](#-akaryakıt-fiyatları-benzin-motorin-lpg)
+  - [🕌 Namaz Vakitleri & Geri Sayım (Diyanet)](#-namaz-vakitleri--geri-sayım-diyanet)
+  - [🚗 Canlı Trafik Yoğunluk Endeksi (İBB TKM)](#-canlı-trafik-yoğunluk-endeksi-ibb-tkm)
+  - [🚢 Vapur Seferleri & İskeleler (Şehir Hatları & İZDENİZ)](#-vapur-seferleri--iskeleler-şehir-hatları--izdeniz)
   - [Sağlık & Nöbetçi Eczane (81 İl / EczaneAPI)](#sağlık--nöbetçi-eczane-81-il--eczaneapi)
   - [Elektrikli Araç Şarj İstasyonları (sarj.dev)](#-elektrikli-araç-şarj-istasyonları-sarjdev)
   - [İZSU (İzmir Su & Baraj)](#izsu-izmir-su--baraj)
@@ -49,7 +53,11 @@
 Türkiye'de toplu taşıma ve kamu verileri onlarca farklı belediye sitesi, API ve veri formatına dağılmış durumda. **turkiyem**, bu dağınık verileri modern, hızlı ve renkli bir CLI arayüzü altında birleştirir:
 
 - 🔎 Tarayıcı açmadan **hat ve durak tarifeleri** sorgulama (10 şehir)
-- 📍 Terminal üzerinden **anlık canlı araç takibi** (İstanbul, Bursa)
+- 📍 Terminal üzerinden **anlık canlı araç takibi** ve durak adları (İstanbul, Bursa)
+- ⛽ **Güncel akaryakıt fiyatları** (Benzin 95, Motorin, LPG - 81 il ve ilçe karşılaştırması)
+- 🕌 **Diyanet namaz vakitleri** ve bir sonraki vakte canlı geri sayım sayacı
+- 🚗 **İBB canlı trafik yoğunluk endeksi** (% oran ve ASCII durum çubuğu)
+- 🚢 **Vapur hatları ve iskeleleri** (İstanbul Şehir Hatları & İzmir İZDENİZ)
 - 💊 **81 ilin nöbetçi eczaneleri**, çalışma saatleri ve telefonları
 - ⚡ **Elektrikli araç şarj istasyonları** (ZES, Trugo, Eşarj vb. soket güçleri ve fiyatları)
 - 💧 **İZSU arıza/su kesintileri** ve baraj doluluk oranları
@@ -63,18 +71,18 @@ Türkiye'de toplu taşıma ve kamu verileri onlarca farklı belediye sitesi, API
 
 ## 🏙️ Desteklenen Şehirler
 
-| Şehir | Kaynak | Hat | Durak | Canlı Konum | Sefer Saatleri | Eczane / Su / Şarj |
-|---|---|:---:|:---:|:---:|:---:|:---:|
-| **İstanbul** | IETT (GTFS + SOAP) | ✅ | ✅ | ✅ | ✅ | Garaj, Kaza, Eczane, Şarj |
-| **Ankara** | EGO Genel Müdürlüğü | ✅ | — | — | ✅ | Eczane, Şarj |
-| **İzmir** | ESHOT GTFS & İZSU | ✅ | ✅ | — | ✅ | Eczane, İZSU, Şarj |
-| **Adana** | Adana BB (Next.js REST API) | ✅ | ✅ | — | ✅ | Eczane, Şarj |
-| **Antalya** | Antalya Büyükşehir Belediyesi | ✅ | ✅ | — | ✅ | Eczane, Şarj |
-| **Bursa** | Burulaş (Bursakart API) | ✅ | ✅ | ✅ | ✅ | Eczane, Şarj |
-| **Trabzon** | Trabzon Büyükşehir Belediyesi | ✅ | — | — | ✅ | Eczane, Şarj |
-| **Samsun** | Samulaş | ✅ | ✅ | — | ✅ | Eczane, Şarj |
-| **Mersin** | Mersin Büyükşehir Belediyesi | ✅ | — | — | ✅ | Eczane, Şarj |
-| **Kayseri** | Kayseri BB Açık Veri | — | — | — | — | Nöbetçi Eczane, Şarj |
+| Şehir | Kaynak | Hat | Durak | Canlı Konum | Eczane | Akaryakıt | Namaz | Vapur / Şarj |
+|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **İstanbul** | IETT (GTFS + SOAP) & İBB TKM | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Trafik, Vapur, Şarj |
+| **Ankara** | EGO Genel Müdürlüğü | ✅ | — | — | ✅ | ✅ | ✅ | Şarj |
+| **İzmir** | ESHOT GTFS & İZSU & İZDENİZ | ✅ | ✅ | — | ✅ | ✅ | ✅ | İZSU, İZDENİZ, Şarj |
+| **Adana** | Adana BB (Next.js REST API) | ✅ | ✅ | — | ✅ | ✅ | ✅ | Şarj |
+| **Antalya** | Antalya Büyükşehir Belediyesi | ✅ | ✅ | — | ✅ | ✅ | ✅ | Şarj |
+| **Bursa** | Burulaş (Bursakart API) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Şarj |
+| **Trabzon** | Trabzon Büyükşehir Belediyesi | ✅ | — | — | ✅ | ✅ | ✅ | Şarj |
+| **Samsun** | Samulaş | ✅ | ✅ | — | ✅ | ✅ | ✅ | Şarj |
+| **Mersin** | Mersin Büyükşehir Belediyesi | ✅ | — | — | ✅ | ✅ | ✅ | Şarj |
+| **Kayseri** | Kayseri BB Açık Veri | — | — | — | ✅ | ✅ | ✅ | Şarj |
 
 ---
 
@@ -112,23 +120,23 @@ turkiyem menu
 # 2. Şehir seç (İnteraktif liste veya doğrudan isimle)
 turkiyem sehir istanbul
 
-# 3. Hat sorgula
+# 3. Akaryakıt fiyatlarını kontrol et
+turkiyem yakit
+
+# 4. Namaz vakitlerini ve iftar/sıradaki vakti gör
+turkiyem namaz
+
+# 5. İstanbul canlı trafik durumunu incele
+turkiyem trafik
+
+# 6. Vapur hatlarını listele
+turkiyem vapur
+
+# 7. Hat sorgula
 turkiyem hat 500T
 
-# 4. Nöbetçi eczaneleri listele
+# 8. Nöbetçi eczaneleri listele
 turkiyem eczane nobetci
-
-# 5. Elektrikli araç şarj istasyonu ara
-turkiyem sarj ara kadikoy
-
-# 6. Su kesintisi kontrol et
-turkiyem izsu kesinti
-
-# 7. Deprem kontrol et
-turkiyem deprem son24 -l 5
-
-# 8. Döviz kurlarını getir
-turkiyem doviz
 ```
 
 ---
@@ -142,13 +150,50 @@ turkiyem sehir                # 10 şehri açıklamalarıyla listeleyen interakt
 turkiyem sehir istanbul       # Şehri İstanbul olarak ayarlar
 turkiyem sehir ankara         # Şehri Ankara olarak ayarlar
 turkiyem sehir izmir          # Şehri İzmir olarak ayarlar
-turkiyem sehir adana          # Şehri Adana olarak ayarlar
-turkiyem sehir antalya        # Şehri Antalya olarak ayarlar
 turkiyem sehir bursa          # Şehri Bursa olarak ayarlar
-turkiyem sehir trabzon        # Şehri Trabzon olarak ayarlar
-turkiyem sehir samsun         # Şehri Samsun olarak ayarlar
-turkiyem sehir mersin         # Şehri Mersin olarak ayarlar
-turkiyem sehir kayseri        # Şehri Kayseri olarak ayarlar
+```
+
+### ⛽ Akaryakıt Fiyatları (Benzin, Motorin, LPG)
+
+```bash
+# Büyük Şehirler Karşılaştırması (İstanbul, Ankara, İzmir, Bursa, Antalya, Adana)
+turkiyem yakit
+turkiyem benzin
+
+# İl ve İlçe Bazlı Detaylı Pompa Fiyatları
+turkiyem yakit ankara
+turkiyem yakit 34             # Plaka kodu ile sorgulama
+turkiyem yakit izmir
+```
+
+### 🕌 Namaz Vakitleri & Geri Sayım (Diyanet)
+
+```bash
+# Seçili Şehrin Namaz Vakitleri & Sıradaki Vakte Kalan Süre
+turkiyem namaz
+
+# Şehir Bazlı Namaz Vakitleri ve Hicri Takvim Tarihi
+turkiyem namaz istanbul
+turkiyem namaz konya
+turkiyem namaz diyarbakir
+```
+
+### 🚗 Canlı Trafik Yoğunluk Endeksi (İBB TKM)
+
+```bash
+# İBB Anlık Trafik Yüzdesi, İlerleme Çubuğu ve Durum Notu
+turkiyem trafik
+```
+
+### 🚢 Vapur Seferleri & İskeleler (Şehir Hatları & İZDENİZ)
+
+```bash
+# İstanbul Şehir Hatları Ana Hatları, Sefer Sıklığı ve Süreleri
+turkiyem vapur
+turkiyem vapur istanbul
+
+# İzmir İZDENİZ İskeleleri ve Yolcu / Arabalı Vapur Tipleri
+turkiyem vapur izmir
 ```
 
 ### Toplu Taşıma (Hat & Sefer Saatleri)
@@ -177,51 +222,28 @@ turkiyem hat B24
 # İzmir (ESHOT GTFS) — Durak listesi ve ilk duraktan kalkış saatleri
 turkiyem sehir izmir
 turkiyem hat 34
-
-# Trabzon — Gidiş ve dönüş yönlü hareket saatleri
-turkiyem sehir trabzon
-turkiyem hat 121
-
-# Samsun (Samulaş) — Hat bilgisi ve durak listesi
-turkiyem sehir samsun
-turkiyem hat R28
 ```
 
 ### Durak Sorgulama
 
 ```bash
-# Adana — Durak detayı ve geçen hatlar
-turkiyem sehir adana
-turkiyem durak 43681
-
-# Antalya — Durak tarifesi
-turkiyem sehir antalya
-turkiyem durak 10142
-
-# Bursa — Durağa yaklaşan araçlar ve kalan süreler
-turkiyem sehir bursa
-turkiyem durak 5678
-
-# İzmir — Durak arama ve kalkışlar
-turkiyem sehir izmir
-turkiyem durak konak
+turkiyem sehir adana && turkiyem durak 43681
+turkiyem sehir antalya && turkiyem durak 10142
+turkiyem sehir bursa && turkiyem durak 5678
+turkiyem sehir izmir && turkiyem durak konak
 ```
 
 ### Canlı Konum & Filo
 
 ```bash
-# İstanbul (IETT) — Anlık araç konumları
+# İstanbul (IETT) — Anlık araç konumları ve durağın adı
 turkiyem sehir istanbul
 turkiyem hat canli 34AS          # Özet (aktif araç sayısı, yön dağılımı)
-turkiyem hat canli 34AS --detay  # Detay (araç bazlı kapı no, koordinat, yakın durak)
+turkiyem hat canli 34AS --detay  # Detay (araç bazlı kapı no, koordinat, yakın durak adı)
 
 # Bursa (Burulaş) — Anlık araç konumları
 turkiyem sehir bursa
 turkiyem hat canli 17            # Plaka, hız, doluluk oranı
-
-# İBB Garaj ve Kaza Bilgileri
-turkiyem ibb garaj               # İstanbul'daki 86 garajı listeler
-turkiyem ibb kaza                # Güncel kaza lokasyonları
 ```
 
 ### Sağlık & Nöbetçi Eczane (81 İl / EczaneAPI)
@@ -229,7 +251,7 @@ turkiyem ibb kaza                # Güncel kaza lokasyonları
 ```bash
 # Nöbetçi Eczaneler (81 İl EczaneAPI veya İzmir/Kayseri Açık Veri)
 turkiyem eczane nobetci                 # Seçili şehirdeki tüm nöbetçi eczaneler
-turkiyem eczane nobetci kadikoy         # İlçe filtreli arama (örn: Kadıköy, Karşıyaka, Melikgazi)
+turkiyem eczane nobetci kadikoy         # İlçe filtreli arama
 turkiyem eczane nobetci -s ankara -t 2026-03-01 # Şehir ve tarih filtreli
 
 # Eczane Detayı & İstatistikler
@@ -237,24 +259,16 @@ turkiyem eczane detay <eczaneId>        # Eczanenin sahibi, 24 saat durumu, çal
 turkiyem eczane sehirler                # 81 ilin eczane ve ilçe istatistikleri
 turkiyem eczane ilceler istanbul        # Belirtilen ilin ilçeleri ve eczane sayıları
 turkiyem eczane yakin 41.0082 28.9784 5 # Koordinata en yakın nöbetçi eczaneler (5 km yarıçap)
-
-# API Anahtarı Tanımlama (81 İl için https://eczaneapi.com)
 turkiyem eczane key <API_KEY>           # EczaneAPI anahtarını yapılandır
 ```
 
 ### ⚡ Elektrikli Araç Şarj İstasyonları (sarj.dev)
 
 ```bash
-# Şarj Sağlayıcıları (ZES, Trugo, Eşarj, Voltrun, Sharz, Beefull, Astor vb.)
 turkiyem sarj saglayicilar               # Tüm şarj sağlayıcıları ve istasyon sayıları
-
-# İstasyon Arama (Şehir, İlçe veya Sağlayıcı Bazlı)
 turkiyem sarj ara kadikoy                # Kadıköy'deki şarj istasyonları
 turkiyem sarj ara zes                    # ZES şarj istasyonları
-turkiyem sarj ara trugo -s ankara        # Ankara'daki Trugo istasyonları
-
-# İstasyon Detayları, Soketler ve Fiyatlandırma
-turkiyem sarj detay 14586117             # Soket tipleri (CCS/Type2), kW güç, AC/DC ve fiyat bilgileri
+turkiyem sarj detay 14586117             # Soket tipleri (CCS/Type2), kW güç, AC/DC ve fiyatlar
 ```
 
 ### İZSU (İzmir Su & Baraj)
@@ -315,6 +329,10 @@ turkiyem/
 │   │   ├── sehir.js                # Şehir seçici (İnteraktif)
 │   │   ├── hat.js                  # Şehir hat sorgulayıcıları
 │   │   ├── durak.js                # Durak sorgulayıcıları
+│   │   ├── yakit.js                # Akaryakıt (Benzin, Motorin, LPG) komutları
+│   │   ├── namaz.js                # Diyanet namaz vakitleri & geri sayım
+│   │   ├── trafik.js               # İBB canlı trafik endeksi komutları
+│   │   ├── vapur.js                # Şehir Hatları & İZDENİZ vapur komutları
 │   │   ├── eczane.js               # Nöbetçi eczane komutları (EczaneAPI & Açık Veri)
 │   │   ├── sarj.js                 # Elektrikli araç şarj istasyonu komutları (sarj.dev)
 │   │   ├── izsu.js                 # İZSU komutları
@@ -325,9 +343,13 @@ turkiyem/
 │   │   ├── menu.js                 # REPL sürekli oturum modu
 │   │   └── temizle.js              # Cache temizleme
 │   ├── services/                   # Dış API ve veri çekim servisleri
+│   │   ├── fuelService.js          # Opet / EPDK akaryakıt fiyat servisi
+│   │   ├── prayerService.js        # Diyanet namaz vakitleri servisi
+│   │   ├── trafficService.js       # İBB TKM canlı trafik endeks servisi
+│   │   ├── vapurService.js         # Şehir Hatları & İZDENİZ iskele servisi
 │   │   ├── adanaService.js         # Adana Next.js REST API
 │   │   ├── egoService.js           # Ankara EGO servisi
-│   │   ├── iettService.js          # İstanbul IETT GTFS + SOAP
+│   │   ├── iettService.js          # İstanbul IETT GTFS + SOAP (Durak çözümleyici)
 │   │   ├── izmirService.js         # İzmir ESHOT GTFS servisi
 │   │   ├── izsuService.js          # İZSU açık veri servisi
 │   │   ├── antalyaService.js       # Antalya belediye servisi
@@ -341,6 +363,10 @@ turkiyem/
 │   │   ├── weatherService.js       # Open-Meteo hava servisi
 │   │   └── tcmbService.js          # TCMB döviz XML servisi
 │   ├── displays/                   # Modüler tablo ve grafik göstericileri
+│   │   ├── fuelDisplay.js          # Akaryakıt karşılaştırma tabloları
+│   │   ├── prayerDisplay.js        # Namaz vakitleri & geri sayım kutusu
+│   │   ├── trafficDisplay.js       # İBB trafik gösterge kartı
+│   │   ├── vapurDisplay.js         # Vapur hatları & iskele tabloları
 │   │   ├── earthquakeDisplay.js    # Deprem tabloları
 │   │   ├── weatherDisplay.js       # Hava tabloları ve ASCII grafikleri
 │   │   ├── financeDisplay.js       # Döviz tabloları
@@ -358,7 +384,7 @@ turkiyem/
 │       └── spinnerWrapper.js       # Spinner yardımcıları
 ├── tests/                          # Otomatik test paketi (node:test)
 │   ├── cache.test.js               # Önbellek testleri
-│   └── services.test.js            # Servis entegrasyon testleri
+│   └── services.test.js            # Servis entegrasyon testleri (20 test)
 └── package.json
 ```
 
@@ -400,7 +426,11 @@ npm test
 ✔ Samsun Transit Service
 ✔ Mersin Transit Service
 ✔ EV Charging Providers Service (sarj.dev)
-ℹ tests 16 | pass 16 | fail 0 (100% Başarı)
+✔ Fuel Prices Service (Opet)
+✔ Prayer Times Service (Diyanet)
+✔ IBB Traffic Index Service
+✔ Ferry Services (IZDENIZ & Sehir Hatlari)
+ℹ tests 20 | pass 20 | fail 0 (100% Başarı)
 ```
 
 ---

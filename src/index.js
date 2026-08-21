@@ -23,6 +23,10 @@ import {
 import { sarjSaglayicilar, sarjAra, sarjDetay } from './commands/sarj.js';
 import { ibbHatlar, ibbDuraklar, ibbFilo, ibbGaraj, ibbKaza } from './commands/ibb.js';
 import { registerIzsuCommands } from './commands/izsu.js';
+import { yakitFiyatlari } from './commands/yakit.js';
+import { namazVakitleri } from './commands/namaz.js';
+import { trafikDurumu } from './commands/trafik.js';
+import { vapurSorgula } from './commands/vapur.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
@@ -274,6 +278,36 @@ ibbCmd
   .description('Güncel kaza lokasyonlarını göster')
   .action(async () => {
     await ibbKaza();
+  });
+
+program
+  .command('yakit [sehir]')
+  .alias('benzin')
+  .description('Güncel akaryakıt (Benzin, Motorin, LPG) fiyatlarını göster')
+  .action(async (sehir) => {
+    await yakitFiyatlari(sehir);
+  });
+
+program
+  .command('namaz [sehir]')
+  .alias('ezan')
+  .description('Diyanet namaz vakitleri ve geri sayım')
+  .action(async (sehir) => {
+    await namazVakitleri(sehir);
+  });
+
+program
+  .command('trafik')
+  .description('İBB canlı trafik yoğunluk endeksini göster')
+  .action(async () => {
+    await trafikDurumu();
+  });
+
+program
+  .command('vapur [sehir]')
+  .description('Şehir Hatları (İstanbul) ve İZDENİZ (İzmir) vapur hatları ve iskeleleri')
+  .action(async (sehir) => {
+    await vapurSorgula(sehir);
   });
 
 program

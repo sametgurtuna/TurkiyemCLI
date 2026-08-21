@@ -11,6 +11,10 @@ import { searchBursaRouteAndStation } from '../src/services/bursaService.js';
 import { fetchTrabzonBuses } from '../src/services/trabzonService.js';
 import { fetchSamsunBuses } from '../src/services/samsunService.js';
 import { fetchMersinRoutes } from '../src/services/mersinService.js';
+import { fetchFuelPrices } from '../src/services/fuelService.js';
+import { fetchPrayerTimes } from '../src/services/prayerService.js';
+import { fetchTrafficIndex } from '../src/services/trafficService.js';
+import { fetchIzdenizPiers, getSehirHatlariRoutes } from '../src/services/vapurService.js';
 
 test('Mojibake UTF-8 decoder', () => {
   assert.strictEqual(decodeMojibake('ÅžÄ°FA SONDURAK'), 'ŞİFA SONDURAK');
@@ -91,4 +95,33 @@ test('EV Charging Providers Service (sarj.dev)', async () => {
   const providers = await fetchChargingProviders();
   assert.ok(Array.isArray(providers) && providers.length > 0, 'Şarj sağlayıcıları listesi gelmeli');
   assert.ok(providers.some(p => (p.slug || p.code || '').toLowerCase().includes('zes') || (p.name || '').includes('ZES')));
+});
+
+test('Fuel Prices Service (Opet)', async () => {
+  const data = await fetchFuelPrices('34');
+  assert.ok(data.provinceName, 'İl adı olmalı');
+  assert.ok(Array.isArray(data.districts) && data.districts.length > 0, 'İlçe fiyatları olmalı');
+  assert.ok(data.summary?.benzin, 'Benzin fiyatı bulunmalı');
+});
+
+test('Prayer Times Service (Diyanet)', async () => {
+  const data = await fetchPrayerTimes('istanbul');
+  assert.ok(data.city);
+  assert.ok(Array.isArray(data.prayers) && data.prayers.length === 6, '6 namaz vakti olmalı');
+  assert.ok(data.nextPrayer?.countdownText, 'Geri sayım süresi hesaplanmış olmalı');
+});
+
+test('IBB Traffic Index Service', async () => {
+  const data = await fetchTrafficIndex();
+  assert.strictEqual(data.city, 'İSTANBUL');
+  assert.ok(typeof data.index === 'number');
+  assert.ok(data.progressBar);
+});
+
+test('Ferry Services (IZDENIZ & Sehir Hatlari)', async () => {
+  const izdeniz = await fetchIzdenizPiers();
+  assert.ok(Array.isArray(izdeniz) && izdeniz.length > 5, 'İzmir iskeleleri gelmeli');
+
+  const sehirHatlari = getSehirHatlariRoutes();
+  assert.ok(Array.isArray(sehirHatlari) && sehirHatlari.length > 3, 'Şehir Hatları rotaları gelmeli');
 });

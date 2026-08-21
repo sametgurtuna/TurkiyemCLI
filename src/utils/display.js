@@ -5,3 +5,7 @@ export * from '../displays/pharmacyDisplay.js';
 export * from '../displays/transportDisplay.js';
 export * from '../displays/izsuDisplay.js';
 export * from '../displays/sarjDisplay.js';
+export * from '../displays/fuelDisplay.js';
+export * from '../displays/prayerDisplay.js';
+export * from '../displays/trafficDisplay.js';
+export * from '../displays/vapurDisplay.js';

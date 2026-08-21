@@ -19,7 +19,7 @@ const logo = `
 const turkishFlagGradient = gradient(['#E30A17', '#ffffff', '#E30A17']);
 
 function buildBanner() {
-  const subtitle = `🇹🇷 Türkiye Toplu Taşıma, Deprem, Eczane, Şarj & Hava Durumu CLI  ${chalk.dim(`v${pkg.version}`)}`;
+  const subtitle = `🇹🇷 Türkiye Toplu Taşıma, Deprem, Eczane, Şarj & Kamu Verileri CLI  ${chalk.dim(`v${pkg.version}`)}`;
 
   return [
     turkishFlagGradient(logo),
@@ -48,7 +48,7 @@ export const CATEGORIES = [
     title: 'Toplu Taşıma & Canlı Konum (10 Şehir)',
     icon: icons.route,
     rows: [
-      ['turkiyem hat <numara>', 'Hat güzergahı ve sefer saatleri (İstanbul, Ankara, İzmir, Adana, Antalya, Bursa, Trabzon, Samsun, Mersin)'],
+      ['turkiyem hat <numara>', 'Hat güzergahı ve sefer saatleri (10 şehir)'],
       ['turkiyem hat canli <numara> [-d]', 'Anlık canlı araç konumu ve harita (İstanbul, Bursa)'],
       ['turkiyem durak <id|isim>', 'Durağa yaklaşan araçlar ve geçen hatlar'],
     ],
@@ -74,6 +74,36 @@ export const CATEGORIES = [
       ['turkiyem sarj saglayicilar', 'Tüm şarj ağı işletmecileri (ZES, Trugo, Eşarj, Voltrun vb.)'],
       ['turkiyem sarj ara [sorgu]', 'Şehir, ilçe veya sağlayıcı adına göre şarj istasyonu ara'],
       ['turkiyem sarj detay <istasyonId>', 'Soket tipleri (CCS/Type2), güç (kW), AC/DC ve fiyatlar'],
+    ],
+  },
+  {
+    title: 'Akaryakıt Fiyatları (Benzin, Motorin, LPG)',
+    icon: icons.fuel,
+    rows: [
+      ['turkiyem yakit', 'Türkiye büyük şehirler akaryakıt karşılaştırma tablosu'],
+      ['turkiyem yakit <şehir|plaka>', 'İl ve ilçe bazlı güncel pompa satış fiyatları'],
+    ],
+  },
+  {
+    title: 'Namaz Vakitleri & Geri Sayım (Diyanet)',
+    icon: icons.prayer,
+    rows: [
+      ['turkiyem namaz [şehir]', '81 il için güncel namaz vakitleri ve sıradaki vakte kalan süre'],
+    ],
+  },
+  {
+    title: 'Canlı Trafik Yoğunluk Endeksi (İBB TKM)',
+    icon: icons.traffic,
+    rows: [
+      ['turkiyem trafik', 'İBB anlık trafik yoğunluk yüzdesi, durum kartı ve ilerleme çubuğu'],
+    ],
+  },
+  {
+    title: 'Vapur Seferleri & İskeleler (Şehir Hatları & İZDENİZ)',
+    icon: icons.ferry,
+    rows: [
+      ['turkiyem vapur [istanbul]', 'İstanbul Şehir Hatları ana hatları, sefer sıklığı ve süreler'],
+      ['turkiyem vapur izmir', 'İzmir İZDENİZ iskele listesi ve vapur tipleri'],
     ],
   },
   {
