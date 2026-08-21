@@ -3,17 +3,17 @@
   <img src="https://img.shields.io/badge/node-%3E%3D20-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="node" />
   <img src="https://img.shields.io/npm/l/turkiyem?style=for-the-badge&color=blue" alt="license" />
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=for-the-badge" alt="platform" />
-  <img src="https://img.shields.io/badge/tests-15%20passed-brightgreen?style=for-the-badge" alt="tests" />
+  <img src="https://img.shields.io/badge/tests-16%20passed-brightgreen?style=for-the-badge" alt="tests" />
 </p>
 
-<h1 align="center">🇹🇷 turkiyem (v1.12.0)</h1>
+<h1 align="center">🇹🇷 turkiyem</h1>
 
 <p align="center">
-  <strong>Türkiye'nin en kapsamlı terminal tabanlı toplu taşıma, deprem, hava durumu, su kesintisi ve ekonomi CLI aracı.</strong>
+  <strong>Türkiye'nin en kapsamlı terminal tabanlı toplu taşıma, deprem, hava durumu, su kesintisi, nöbetçi eczane ve elektrikli araç şarj istasyonu CLI aracı.</strong>
 </p>
 
 <p align="center">
-  10 şehrin toplu taşıma verileri, güncel nöbetçi eczaneler, İZSU su kesintisi & baraj verileri, AFAD deprem bilgileri, Open-Meteo hava durumu, TCMB döviz kurları — hepsi tek bir <code>npm</code> paketi içinde.
+  10 şehrin toplu taşıma verileri, 81 ilin nöbetçi eczaneleri, elektrikli araç şarj istasyonları (sarj.dev), İZSU su kesintisi & baraj verileri, AFAD deprem bilgileri, Open-Meteo hava durumu, TCMB döviz kurları — hepsi tek bir <code>npm</code> paketi içinde.
 </p>
 
 ---
@@ -22,40 +22,39 @@
 
 - [Neden turkiyem?](#-neden-turkiyem)
 - [Desteklenen Şehirler](#-desteklenen-şehirler)
-- [Özellikler](#-özellikler)
 - [Kurulum](#-kurulum)
 - [Hızlı Başlangıç](#-hızlı-başlangıç)
 - [Komut Referansı](#-komut-referansı)
   - [Şehir Seçimi](#şehir-seçimi)
-  - [Hat Sorgulama](#hat-sorgulama)
+  - [Toplu Taşıma (Hat & Sefer Saatleri)](#toplu-taşıma-hat--sefer-saatleri)
   - [Durak Sorgulama](#durak-sorgulama)
   - [Canlı Konum & Filo](#canlı-konum--filo)
+  - [Sağlık & Nöbetçi Eczane (81 İl / EczaneAPI)](#sağlık--nöbetçi-eczane-81-il--eczaneapi)
+  - [Elektrikli Araç Şarj İstasyonları (sarj.dev)](#-elektrikli-araç-şarj-istasyonları-sarjdev)
   - [İZSU (İzmir Su & Baraj)](#izsu-izmir-su--baraj)
-  - [Sağlık & Nöbetçi Eczane](#sağlık--nöbetçi-eczane-eczaneapi--açık-veri)
-  - [Elektrikli Araç Şarj İstasyonları](#-elektrikli-araç-şarj-istasyonları-sarjdev)
   - [Deprem (AFAD)](#deprem-afad)
-  - [Hava Durumu & Kalite](#hava-durumu--kalite)
+  - [Hava Durumu & Kalite (Open-Meteo)](#hava-durumu--kalite-open-meteo)
   - [Döviz Kurları (TCMB)](#döviz-kurları-tcmb)
   - [Yardımcı Komutlar](#yardımcı-komutlar)
-- [Veri Kaynakları & Lisanslar](#-veri-kaynakları--lisanslar)
 - [Mimari & Proje Yapısı](#-mimari--proje-yapısı)
-- [Yapılandırma & Kalıcı Disk Önbelleği](#-yapılandırma--kalıcı-disk-önbelleği)
+- [Kalıcı Disk Önbelleği](#-kalıcı-disk-önbelleği)
 - [Otomatik Testler](#-otomatik-testler)
-- [Geliştirme & Yayınlama](#-geliştirme--yayınlama)
+- [Geliştirme](#-geliştirme)
 - [Lisans](#-lisans)
 
 ---
 
 ## 🎯 Neden turkiyem?
 
-Türkiye'de toplu taşıma ve kamu verileri onlarca farklı belediye sitesi, API ve veri formatına dağılmış durumda. **turkiyem**, bu dağınık verileri modern ve renkli bir CLI arayüzü altında birleştirir:
+Türkiye'de toplu taşıma ve kamu verileri onlarca farklı belediye sitesi, API ve veri formatına dağılmış durumda. **turkiyem**, bu dağınık verileri modern, hızlı ve renkli bir CLI arayüzü altında birleştirir:
 
-- 🔎 Tarayıcı açmadan **hat ve durak tarifeleri** sorgulama
+- 🔎 Tarayıcı açmadan **hat ve durak tarifeleri** sorgulama (10 şehir)
 - 📍 Terminal üzerinden **anlık canlı araç takibi** (İstanbul, Bursa)
+- 💊 **81 ilin nöbetçi eczaneleri**, çalışma saatleri ve telefonları
+- ⚡ **Elektrikli araç şarj istasyonları** (ZES, Trugo, Eşarj vb. soket güçleri ve fiyatları)
 - 💧 **İZSU arıza/su kesintileri** ve baraj doluluk oranları
-- 💊 Anlık **nöbetçi eczane** sorgulama (İzmir, Kayseri vb.)
-- 🌍 **AFAD deprem bildirimleri** ve kritik sarsıntı uyarı kutuları
-- ⛅ **Hava durumu** ve **hava kalitesi** (API key gerektirmeden)
+- 🌍 **AFAD deprem bildirimleri** ve kritik sarsıntı uyarı tabloları
+- ⛅ **Hava durumu** ve **hava kalitesi** (PM10, PM2.5, CO, NO₂)
 - 💱 **TCMB döviz kurları** tek komutla
 - ⚡ **Kalıcı disk önbelleği** sayesinde anında hızlı yanıtlar
 - 🖥️ Windows, macOS, Linux, Sunucu ve Raspberry Pi ortamlarında sorunsuz çalışır
@@ -64,18 +63,18 @@ Türkiye'de toplu taşıma ve kamu verileri onlarca farklı belediye sitesi, API
 
 ## 🏙️ Desteklenen Şehirler
 
-| Şehir | Kaynak | Hat | Durak | Canlı Konum | Sefer Saatleri | Eczane / Su |
+| Şehir | Kaynak | Hat | Durak | Canlı Konum | Sefer Saatleri | Eczane / Su / Şarj |
 |---|---|:---:|:---:|:---:|:---:|:---:|
-| **İstanbul** | IETT (GTFS + SOAP) | ✅ | ✅ | ✅ | ✅ | Garaj & Kaza |
-| **Ankara** | EGO Genel Müdürlüğü | ✅ | — | — | ✅ | — |
-| **İzmir** | ESHOT GTFS & İZSU | ✅ | ✅ | — | ✅ | Eczane & İZSU |
-| **Adana** | Adana BB (Next.js REST API) | ✅ | ✅ | — | ✅ | — |
-| **Antalya** | Antalya Büyükşehir Belediyesi | ✅ | ✅ | — | ✅ | — |
-| **Bursa** | Burulaş (Bursakart API) | ✅ | ✅ | ✅ | ✅ | — |
-| **Trabzon** | Trabzon Büyükşehir Belediyesi | ✅ | — | — | ✅ | — |
-| **Samsun** | Samulaş | ✅ | ✅ | — | ✅ | — |
-| **Mersin** | Mersin Büyükşehir Belediyesi | ✅ | — | — | ✅ | — |
-| **Kayseri** | Kayseri BB Açık Veri | — | — | — | — | Nöbetçi Eczane |
+| **İstanbul** | IETT (GTFS + SOAP) | ✅ | ✅ | ✅ | ✅ | Garaj, Kaza, Eczane, Şarj |
+| **Ankara** | EGO Genel Müdürlüğü | ✅ | — | — | ✅ | Eczane, Şarj |
+| **İzmir** | ESHOT GTFS & İZSU | ✅ | ✅ | — | ✅ | Eczane, İZSU, Şarj |
+| **Adana** | Adana BB (Next.js REST API) | ✅ | ✅ | — | ✅ | Eczane, Şarj |
+| **Antalya** | Antalya Büyükşehir Belediyesi | ✅ | ✅ | — | ✅ | Eczane, Şarj |
+| **Bursa** | Burulaş (Bursakart API) | ✅ | ✅ | ✅ | ✅ | Eczane, Şarj |
+| **Trabzon** | Trabzon Büyükşehir Belediyesi | ✅ | — | — | ✅ | Eczane, Şarj |
+| **Samsun** | Samulaş | ✅ | ✅ | — | ✅ | Eczane, Şarj |
+| **Mersin** | Mersin Büyükşehir Belediyesi | ✅ | — | — | ✅ | Eczane, Şarj |
+| **Kayseri** | Kayseri BB Açık Veri | — | — | — | — | Nöbetçi Eczane, Şarj |
 
 ---
 
@@ -96,7 +95,7 @@ turkiyem
 ### Projeyi Kaynak Koddan Çalıştırma
 
 ```bash
-git clone https://github.com/<kullanici>/TurkiyemCLI.git
+git clone https://github.com/sametgurtuna/TurkiyemCLI.git
 cd TurkiyemCLI
 npm install
 npm link   # Global olarak `turkiyem` komutunu aktif eder
@@ -116,16 +115,19 @@ turkiyem sehir istanbul
 # 3. Hat sorgula
 turkiyem hat 500T
 
-# 4. Su kesintisi kontrol et
-turkiyem izsu kesinti
-
-# 5. Nöbetçi eczaneleri listele
+# 4. Nöbetçi eczaneleri listele
 turkiyem eczane nobetci
 
-# 6. Deprem kontrol et
+# 5. Elektrikli araç şarj istasyonu ara
+turkiyem sarj ara kadikoy
+
+# 6. Su kesintisi kontrol et
+turkiyem izsu kesinti
+
+# 7. Deprem kontrol et
 turkiyem deprem son24 -l 5
 
-# 7. Döviz kurlarını getir
+# 8. Döviz kurlarını getir
 turkiyem doviz
 ```
 
@@ -149,7 +151,7 @@ turkiyem sehir mersin         # Şehri Mersin olarak ayarlar
 turkiyem sehir kayseri        # Şehri Kayseri olarak ayarlar
 ```
 
-### Hat Sorgulama
+### Toplu Taşıma (Hat & Sefer Saatleri)
 
 ```bash
 # İstanbul (IETT) — GTFS özeti + Planlanan sefer saatleri
@@ -222,17 +224,7 @@ turkiyem ibb garaj               # İstanbul'daki 86 garajı listeler
 turkiyem ibb kaza                # Güncel kaza lokasyonları
 ```
 
-### İZSU (İzmir Su & Baraj)
-
-```bash
-turkiyem izsu kesinti            # Güncel su kesintileri
-turkiyem izsu baraj              # Baraj doluluk oranları ve su üretimi
-turkiyem izsu uretim             # Günlük su üretimi
-turkiyem izsu sube               # İZSU şubeleri
-turkiyem izsu analiz             # Haftalık su kalite analizleri
-```
-
-### Sağlık & Nöbetçi Eczane (EczaneAPI & Açık Veri)
+### Sağlık & Nöbetçi Eczane (81 İl / EczaneAPI)
 
 ```bash
 # Nöbetçi Eczaneler (81 İl EczaneAPI veya İzmir/Kayseri Açık Veri)
@@ -265,6 +257,16 @@ turkiyem sarj ara trugo -s ankara        # Ankara'daki Trugo istasyonları
 turkiyem sarj detay 14586117             # Soket tipleri (CCS/Type2), kW güç, AC/DC ve fiyat bilgileri
 ```
 
+### İZSU (İzmir Su & Baraj)
+
+```bash
+turkiyem izsu kesinti            # Güncel su kesintileri
+turkiyem izsu baraj              # Baraj doluluk oranları ve su üretimi
+turkiyem izsu uretim             # Günlük su üretimi
+turkiyem izsu sube               # İZSU şubeleri
+turkiyem izsu analiz             # Haftalık su kalite analizleri
+```
+
 ### Deprem (AFAD)
 
 ```bash
@@ -295,7 +297,7 @@ turkiyem doviz --tum     # Merkez Bankası'ndaki tüm döviz kurları
 ```bash
 turkiyem menu            # Sürekli oturum (REPL) modunu başlatır
 turkiyem temizle         # Kalıcı disk önbelleğini ve ayarları sıfırlar
-turkiyem help            # Komut yardımını gösterir
+turkiyem help            # Kategorili komut yardımını gösterir
 turkiyem --version       # Sürüm numarasını basar
 ```
 
@@ -313,11 +315,12 @@ turkiyem/
 │   │   ├── sehir.js                # Şehir seçici (İnteraktif)
 │   │   ├── hat.js                  # Şehir hat sorgulayıcıları
 │   │   ├── durak.js                # Durak sorgulayıcıları
+│   │   ├── eczane.js               # Nöbetçi eczane komutları (EczaneAPI & Açık Veri)
+│   │   ├── sarj.js                 # Elektrikli araç şarj istasyonu komutları (sarj.dev)
 │   │   ├── izsu.js                 # İZSU komutları
 │   │   ├── deprem.js               # AFAD deprem komutları
 │   │   ├── hava.js                 # Hava durumu komutları
 │   │   ├── doviz.js                # TCMB döviz komutları
-│   │   ├── eczane.js               # Nöbetçi eczane komutları
 │   │   ├── ibb.js                  # İBB/İETT araç ve kaza komutları
 │   │   ├── menu.js                 # REPL sürekli oturum modu
 │   │   └── temizle.js              # Cache temizleme
@@ -332,7 +335,8 @@ turkiyem/
 │   │   ├── trabzonService.js       # Trabzon belediye servisi
 │   │   ├── samsunService.js        # Samulaş açık veri servisi
 │   │   ├── mersinService.js        # Mersin belediye servisi
-│   │   ├── eczaneService.js        # İzmir & Kayseri eczane servisleri
+│   │   ├── eczaneService.js        # EczaneAPI & İzmir/Kayseri açık veri servisi
+│   │   ├── sarjService.js          # sarj.dev şarj sağlayıcı & istasyon servisi
 │   │   ├── afadService.js          # AFAD deprem servisi
 │   │   ├── weatherService.js       # Open-Meteo hava servisi
 │   │   └── tcmbService.js          # TCMB döviz XML servisi
@@ -340,7 +344,8 @@ turkiyem/
 │   │   ├── earthquakeDisplay.js    # Deprem tabloları
 │   │   ├── weatherDisplay.js       # Hava tabloları ve ASCII grafikleri
 │   │   ├── financeDisplay.js       # Döviz tabloları
-│   │   ├── pharmacyDisplay.js      # Eczane tabloları
+│   │   ├── pharmacyDisplay.js      # Eczane tabloları ve detayları
+│   │   ├── sarjDisplay.js          # Şarj istasyon & soket tabloları
 │   │   ├── izsuDisplay.js          # İZSU tabloları
 │   │   └── transportDisplay.js     # Toplu taşıma & canlı filo tabloları
 │   └── utils/                      # Ortak yardımcı araçlar
@@ -348,7 +353,8 @@ turkiyem/
 │       ├── httpClient.js           # Mojibake/UTF-8 çözücülü HTTP istemcisi
 │       ├── display.js              # Display modülleri dışa aktarımı
 │       ├── config.js               # Kullanıcı yapılandırması
-│       ├── banner.js               # ASCII banner
+│       ├── theme.js                # Tema ve ikon paleti
+│       ├── banner.js               # ASCII banner & kategorili yardım
 │       └── spinnerWrapper.js       # Spinner yardımcıları
 ├── tests/                          # Otomatik test paketi (node:test)
 │   ├── cache.test.js               # Önbellek testleri
@@ -393,7 +399,20 @@ npm test
 ✔ Trabzon Transit Service
 ✔ Samsun Transit Service
 ✔ Mersin Transit Service
-ℹ tests 15 | pass 15 | fail 0 (100% Başarı)
+✔ EV Charging Providers Service (sarj.dev)
+ℹ tests 16 | pass 16 | fail 0 (100% Başarı)
+```
+
+---
+
+## 🔧 Geliştirme
+
+```bash
+git clone https://github.com/sametgurtuna/TurkiyemCLI.git
+cd TurkiyemCLI
+npm install
+npm test
+npm link
 ```
 
 ---
@@ -403,5 +422,6 @@ npm test
 Bu proje [MIT Lisansı](https://opensource.org/licenses/MIT) altında lisanslanmıştır.
 
 <p align="center">
+  Geliştirici: <strong><a href="https://github.com/sametgurtuna">Samet Gürtuna</a></strong><br>
   <sub>Built with ❤️ for Türkiye 🇹🇷</sub>
 </p>

@@ -1,7 +1,7 @@
 {
   "name": "turkiyem",
   "version": "1.16.1",
-  "description": "Türkiye Toplu Taşıma ve Deprem CLI aracı - AFAD deprem verileri, EGO hat saatleri ve IETT SOAP/GTFS bilgileri",
+  "description": "Türkiye Toplu Taşıma, Deprem, Eczane, Şarj İstasyonları ve Hava Durumu CLI aracı",
   "type": "module",
   "main": "./src/index.js",
   "bin": {
@@ -11,6 +11,14 @@
     "start": "node src/index.js",
     "test": "node --test tests/**/*.test.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sametgurtuna/TurkiyemCLI.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sametgurtuna/TurkiyemCLI/issues"
+  },
+  "homepage": "https://github.com/sametgurtuna/TurkiyemCLI#readme",
   "keywords": [
     "turkiye",
     "deprem",
@@ -24,9 +32,14 @@
     "soap",
     "weather",
     "open-meteo",
-    "air-quality"
+    "air-quality",
+    "eczane",
+    "nobetci-eczane",
+    "sarj",
+    "sarj-istasyonu",
+    "ev-charging"
   ],
-  "author": "",
+  "author": "Samet Gürtuna <sametgrtna@gmail.com>",
   "license": "MIT",
   "engines": {
     "node": ">=20.0.0"
