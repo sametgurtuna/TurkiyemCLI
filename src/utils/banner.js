@@ -2,7 +2,8 @@ import chalk from 'chalk';
 import gradient from 'gradient-string';
 import boxen from 'boxen';
 import { createRequire } from 'node:module';
-import { colors, icons } from './theme.js';
+import { colors, icons, symbols } from './theme.js';
+import { terminalWidth } from './ui.js';
 
 const require = createRequire(import.meta.url);
 const pkg = require('../../package.json');
@@ -16,13 +17,26 @@ const logo = `
      ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝   ╚══════╝╚═╝     ╚═╝
 `;
 
+// Logo 68 kolon genişliğinde; dar terminallerde satırlar kırılıp okunmaz hale
+// geldiği için bunun altında kompakt bir başlık gösteriyoruz.
+const LOGO_WIDTH = 70;
+
+const compactLogo = `  ${'━'.repeat(20)}
+   T U R K I Y E M
+  ${'━'.repeat(20)}`;
+
 const turkishFlagGradient = gradient(['#E30A17', '#ffffff', '#E30A17']);
 
 function buildBanner() {
-  const subtitle = `🇹🇷 Türkiye Toplu Taşıma, Deprem, Eczane, Şarj & Kamu Verileri CLI  ${chalk.dim(`v${pkg.version}`)}`;
+  const width = terminalWidth();
+  const art = width >= LOGO_WIDTH ? logo : compactLogo;
+
+  const subtitle = width >= 78
+    ? `🇹🇷 Türkiye Toplu Taşıma, Deprem, Eczane, Şarj & Kamu Verileri CLI  ${chalk.dim(`v${pkg.version}`)}`
+    : `🇹🇷 Türkiye Kamu Verileri CLI  ${chalk.dim(`v${pkg.version}`)}`;
 
   return [
-    turkishFlagGradient(logo),
+    turkishFlagGradient(art),
     '  ' + chalk.white.bold(subtitle),
     '',
   ].join('\n');
@@ -40,7 +54,7 @@ export const CATEGORIES = [
       ['turkiyem sehir [şehir]', 'Şehir seç veya listele (10 şehir desteği)'],
       ['turkiyem menu', 'Sürekli interaktif oturum (REPL) modu'],
       ['turkiyem temizle', 'Kalıcı disk önbelleğini ve ayarları sıfırla'],
-      ['turkiyem help', 'Tüm komutları kategorili listele'],
+      ['turkiyem help [kelime]', 'Komutları kategorili listele veya ara'],
       ['turkiyem -v, --version', 'Sürüm numarasını göster'],
     ],
   },
@@ -160,24 +174,62 @@ function padCommand(cmd, width) {
   return cmd.length >= width ? cmd : cmd + ' '.repeat(width - cmd.length);
 }
 
-export function printHelp() {
+/**
+ * Kategorili komut listesini basar.
+ * @param {string} [filter] Verilirse yalnızca eşleşen komut/açıklamalar gösterilir.
+ */
+export function printHelp(filter = '') {
   printBanner();
 
-  const allCmds = CATEGORIES.flatMap((c) => c.rows.map(([cmd]) => cmd));
-  const cmdWidth = Math.min(46, Math.max(...allCmds.map((c) => c.length)) + 2);
+  const width = terminalWidth();
+  const needle = filter.trim().toLocaleLowerCase('tr');
 
-  for (const category of CATEGORIES) {
+  const categories = needle
+    ? CATEGORIES
+        .map((c) => ({
+          ...c,
+          rows: c.rows.filter(([cmd, desc]) =>
+            `${cmd} ${desc} ${c.title}`.toLocaleLowerCase('tr').includes(needle)
+          ),
+        }))
+        .filter((c) => c.rows.length > 0)
+    : CATEGORIES;
+
+  if (categories.length === 0) {
+    console.log(colors.warn(`  "${filter}" ile eşleşen komut bulunamadı.\n`));
+    console.log(colors.muted(`  Tüm komutlar için: ${colors.cyan('turkiyem help')}\n`));
+    return;
+  }
+
+  const allCmds = categories.flatMap((c) => c.rows.map(([cmd]) => cmd));
+  const longest = Math.max(...allCmds.map((c) => c.length));
+
+  // Komut + açıklama aynı satıra sığmıyorsa açıklamayı alt satıra alıyoruz.
+  const inline = width >= longest + 30;
+  const cmdWidth = Math.min(46, longest + 2);
+
+  for (const category of categories) {
     console.log(colors.accentBold(`  ${category.icon}  ${category.title}`));
+    console.log(colors.hint(`  ${symbols.line.repeat(Math.min(width - 4, category.title.length + 6))}`));
+
     for (const [cmd, desc] of category.rows) {
-      console.log(`    ${colors.cyan(padCommand(cmd, cmdWidth))} ${colors.muted(desc)}`);
+      if (inline) {
+        // Açıklama satır sonunda taşmasın diye kalan genişliğe göre kısaltılır.
+        const room = width - cmdWidth - 6;
+        const text = desc.length > room ? `${desc.slice(0, Math.max(3, room - 1))}…` : desc;
+        console.log(`    ${colors.cyan(padCommand(cmd, cmdWidth))} ${colors.muted(text)}`);
+      } else {
+        console.log(`    ${colors.cyan(cmd)}`);
+        console.log(`      ${colors.muted(desc)}`);
+      }
     }
     console.log('');
   }
 
   console.log(
     boxen(
-      `${chalk.white('Yardım her zaman burada:')} ${colors.cyan('turkiyem help')}\n` +
-      `${chalk.white('Kalıcı oturum için:')}      ${colors.cyan('turkiyem menu')}`,
+      `${chalk.white('Komut ara:')}            ${colors.cyan('turkiyem help <kelime>')}\n` +
+      `${chalk.white('Kalıcı oturum için:')}   ${colors.cyan('turkiyem menu')}`,
       { padding: { left: 1, right: 1, top: 0, bottom: 0 }, borderColor: 'gray', borderStyle: 'round' }
     )
   );

@@ -1,6 +1,26 @@
 import ora from 'ora';
-import chalk from 'chalk';
-import boxen from 'boxen';
+import { errorBox } from './ui.js';
+import { colors } from './theme.js';
+
+/**
+ * Hata mesajına göre kullanıcıya yol gösteren kısa bir ipucu üretir.
+ * @param {Error} error
+ * @returns {string}
+ */
+function hintForError(error) {
+    const message = String(error?.message || '').toLocaleLowerCase('tr');
+
+    if (message.includes('zaman aşımı') || message.includes('timeout')) {
+        return 'Bağlantı yavaş olabilir; birazdan tekrar deneyin.';
+    }
+    if (message.includes('bağlan') || message.includes('sunucu')) {
+        return 'İnternet bağlantınızı kontrol edin veya kaynak geçici olarak kapalı olabilir.';
+    }
+    if (message.includes('bulunamadı')) {
+        return `Yazımı kontrol edin. Komut listesi için: ${colors.cyan('turkiyem help')}`;
+    }
+    return '';
+}
 
 /**
  * Wraps an async operation with a standardized console spinner and error handling.
@@ -10,7 +30,7 @@ import boxen from 'boxen';
  * @returns {Promise<any|null>} The result, or null if it fails
  */
 export async function withSpinner(startMessage, promiseFunc, successMessage = null) {
-    const spinner = ora(startMessage).start();
+    const spinner = ora({ text: startMessage, spinner: 'dots' }).start();
 
     try {
         const result = await promiseFunc();
@@ -25,7 +45,8 @@ export async function withSpinner(startMessage, promiseFunc, successMessage = nu
         }
         return result;
     } catch (error) {
-        spinner.fail(boxen(chalk.red(error.message), { padding: 1, borderColor: 'red' }));
+        spinner.stop();
+        console.log(errorBox(error.message, hintForError(error)));
         return null; // By returning null, the caller knows it failed without throwing
     }
 }
@@ -34,7 +55,7 @@ export async function withSpinner(startMessage, promiseFunc, successMessage = nu
  * For operations that should handle failure by throwing so caller can abort differently.
  */
 export async function withSpinnerStrict(startMessage, promiseFunc, successMessage = null) {
-    const spinner = ora(startMessage).start();
+    const spinner = ora({ text: startMessage, spinner: 'dots' }).start();
     try {
         const result = await promiseFunc();
         if (successMessage) {
@@ -44,7 +65,8 @@ export async function withSpinnerStrict(startMessage, promiseFunc, successMessag
         }
         return result;
     } catch (error) {
-        spinner.fail(boxen(chalk.red(error.message), { padding: 1, borderColor: 'red' }));
+        spinner.stop();
+        console.log(errorBox(error.message, hintForError(error)));
         throw error;
     }
 }

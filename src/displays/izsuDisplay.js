@@ -1,8 +1,8 @@
-import Table from 'cli-table3';
+import { createTable } from '../utils/ui.js';
 import chalk from 'chalk';
 
 function createWaterOutagesTable(outages) {
-    const table = new Table({
+    const table = createTable({
         head: [
             chalk.cyan('İlçe'),
             chalk.cyan('Mahalleler'),
@@ -29,7 +29,7 @@ function createWaterOutagesTable(outages) {
 }
 
 function createDamStatusTable(dams) {
-    const table = new Table({
+    const table = createTable({
         head: [
             chalk.cyan('Baraj Adı'),
             chalk.cyan('Doluluk Oranı (%)'),
@@ -57,7 +57,7 @@ function createDamStatusTable(dams) {
 }
 
 function createWaterProductionTable(productionData) {
-    const table = new Table({
+    const table = createTable({
         head: [
             chalk.cyan('Kaynak Adı'),
             chalk.cyan('Tür'),
@@ -87,7 +87,7 @@ function createBranchesTable(branches, isVezne = false) {
         head.push(chalk.cyan('Telefon'));
     }
 
-    const table = new Table({
+    const table = createTable({
         head,
         wordWrap: true,
         wrapOnWordBoundary: true,

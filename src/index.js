@@ -312,9 +312,10 @@ program
 
 program
   .command('help')
-  .description('Yardım göster')
-  .action(() => {
-    printHelp();
+  .argument('[kelime]', 'Komut listesini filtrelemek için arama kelimesi')
+  .description('Yardım göster (isteğe bağlı arama kelimesiyle filtrele)')
+  .action((kelime) => {
+    printHelp(kelime || '');
   });
 
 if (process.argv.length <= 2) {

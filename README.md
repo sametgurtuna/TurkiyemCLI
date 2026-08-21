@@ -312,6 +312,7 @@ turkiyem doviz --tum     # Merkez Bankası'ndaki tüm döviz kurları
 turkiyem menu            # Sürekli oturum (REPL) modunu başlatır
 turkiyem temizle         # Kalıcı disk önbelleğini ve ayarları sıfırlar
 turkiyem help            # Kategorili komut yardımını gösterir
+turkiyem help deprem     # Komutları kelimeye göre filtreleyerek arar
 turkiyem --version       # Sürüm numarasını basar
 ```
 

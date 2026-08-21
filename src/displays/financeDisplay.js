@@ -1,25 +1,33 @@
-import Table from 'cli-table3';
-import chalk from 'chalk';
+import { createTable } from '../utils/ui.js';
+import { colors, tableHead } from '../utils/theme.js';
+
+/** Alış/satış farkından yüzde makas hesaplar. */
+function spreadPercent(alis, satis) {
+  const buy = parseFloat(String(alis).replace(',', '.'));
+  const sell = parseFloat(String(satis).replace(',', '.'));
+  if (!Number.isFinite(buy) || !Number.isFinite(sell) || buy === 0) return null;
+  return ((sell - buy) / buy) * 100;
+}
 
 export function createDovizTable(result) {
-  const table = new Table({
-    head: [
-      chalk.white.bold('Kod'),
-      chalk.white.bold('Döviz Cinsi'),
-      chalk.white.bold('Alış (TL)'),
-      chalk.white.bold('Satış (TL)'),
-    ],
-    colWidths: [8, 30, 15, 15],
-    style: { head: [], border: ['gray'] },
+  const table = createTable({
+    head: tableHead('Kod', 'Döviz Cinsi', 'Alış (TL)', 'Satış (TL)', 'Makas'),
+    colWidths: [8, 30, 15, 15, 10],
+    colAligns: ['left', 'left', 'right', 'right', 'right'],
+    compact: true,
   });
 
   for (const c of result.currencies || []) {
     if (!c.alis && !c.satis) continue;
+
+    const spread = spreadPercent(c.alis, c.satis);
+
     table.push([
-      chalk.cyan(c.kodu),
-      c.isim,
-      c.alis || '-',
-      c.satis || '-'
+      colors.cyan.bold(c.kodu),
+      colors.value(c.isim),
+      c.alis ? colors.value(c.alis) : colors.muted('-'),
+      c.satis ? colors.success(c.satis) : colors.muted('-'),
+      spread === null ? colors.muted('-') : colors.hint(`%${spread.toFixed(2)}`),
     ]);
   }
 

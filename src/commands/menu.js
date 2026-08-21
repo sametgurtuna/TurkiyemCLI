@@ -1,22 +1,43 @@
-import chalk from 'chalk';
 import readline from 'node:readline';
 import { printBanner } from '../utils/banner.js';
 import { getCity } from '../utils/config.js';
-import { colors, icons, divider } from '../utils/theme.js';
+import { colors, icons, symbols } from '../utils/theme.js';
+import { terminalWidth } from '../utils/ui.js';
 
 function printIntro() {
-    console.log(colors.title(`  🇹🇷 Sürekli oturum modu`) + colors.muted(' — komutları doğrudan yazabilirsiniz (örn: hat 500T, deprem son24)\n'));
-    console.log(colors.muted(`  Tüm komutları görmek için ${colors.cyan('help')}${colors.muted(', çıkmak için')} ${colors.cyan('exit')}${colors.muted(' yazın.\n')}`));
+    console.log(
+        colors.title('  🇹🇷 Sürekli oturum modu') +
+        colors.muted(' — komutları doğrudan yazabilirsiniz (örn: hat 500T, deprem son24)')
+    );
+    console.log(
+        colors.muted('  Komut tamamlama için ') + colors.cyan('Tab') +
+        colors.muted(', geçmiş için ') + colors.cyan('↑/↓') +
+        colors.muted(', tüm komutlar için ') + colors.cyan('help') +
+        colors.muted(', çıkmak için ') + colors.cyan('exit') +
+        colors.muted(' yazın.')
+    );
+    console.log('');
 }
 
-function printSessionHeader() {
+/**
+ * Oturum durum çubuğu: aktif şehir ve kısayollar. Her komuttan sonra
+ * tekrarlandığı için tek satır tutuluyor.
+ */
+function sessionStatusLine() {
     const city = getCity();
     const cityLabel = city ? colors.success.bold(city) : colors.warn('seçilmedi');
-    console.log('');
-    console.log(divider());
-    console.log(colors.muted(`  ${icons.city}  Aktif şehir: `) + cityLabel + colors.muted(`   │   ${icons.help} help   │   Ctrl+C / exit ile çık`));
-    console.log(divider());
-    console.log('');
+    const hint = colors.hint(`${symbols.bullet} help ${symbols.bullet} clear ${symbols.bullet} exit`);
+    return `  ${colors.muted(`${icons.city}  Şehir:`)} ${cityLabel}   ${hint}`;
+}
+
+/**
+ * Dinamik prompt — aktif şehri gösterir, böylece kullanıcı hangi şehir
+ * bağlamında sorgu yaptığını her satırda görür.
+ */
+function buildPrompt() {
+    const city = getCity();
+    const scope = city ? colors.muted(`:${city.toLocaleLowerCase('tr')}`) : '';
+    return colors.accentBold('turkiyem') + scope + colors.muted(` ${symbols.arrow} `);
 }
 
 function printScreen() {
@@ -73,17 +94,31 @@ export async function showMenu() {
         input: process.stdin,
         output: process.stdout,
         completer: completer,
-        prompt: colors.accentBold('turkiyem') + colors.muted(' ❯ '),
+        prompt: buildPrompt(),
         historySize: 200 // Yukarı/aşağı ok tuşu arabellek boyutu
     });
 
-    printSessionHeader();
-    rl.prompt();
+    /** Prompt'u (şehir değişmiş olabilir) tazeleyip yeniden basar. */
+    const nextPrompt = () => {
+        rl.setPrompt(buildPrompt());
+        rl.prompt();
+    };
+
+    console.log(sessionStatusLine());
+    console.log('');
+    nextPrompt();
 
     rl.on('line', async (line) => {
         const cmd = line.trim();
 
-        if (cmd.toLowerCase() === 'exit' || cmd.toLowerCase() === 'çıkış') {
+        if (!cmd) {
+            nextPrompt();
+            return;
+        }
+
+        const lower = cmd.toLocaleLowerCase('tr');
+
+        if (lower === 'exit' || lower === 'çıkış' || lower === 'q') {
             console.log('');
             console.log(colors.cyan(`  Görüşmek üzere! ${icons.exit}`));
             console.log('');
@@ -91,35 +126,39 @@ export async function showMenu() {
             return;
         }
 
-        if (cmd.toLowerCase() === 'clear') {
+        if (lower === 'clear' || lower === 'temizle-ekran') {
             printScreen();
-            printSessionHeader();
-            rl.prompt();
+            console.log(sessionStatusLine());
+            console.log('');
+            nextPrompt();
             return;
         }
 
-        if (cmd.toLowerCase() === 'help' || cmd.toLowerCase() === 'yardım' || cmd.toLowerCase() === '?') {
+        if (lower === 'help' || lower === 'yardım' || lower === 'yardim' || lower === '?' || lower.startsWith('help ')) {
             console.log('');
             const { printHelp } = await import('../utils/banner.js');
-            printHelp();
-            printSessionHeader();
-            rl.prompt();
+            printHelp(cmd.slice(4).trim());
+            nextPrompt();
             return;
         }
 
         const args = cmd.split(' ').filter(Boolean);
+        const startedAt = Date.now();
 
-        if (args.length > 0) {
-            try {
-                const { spawnSync } = await import('node:child_process');
-                spawnSync(process.argv[0], [process.argv[1], ...args], { stdio: 'inherit' });
-            } catch (err) {
-                console.log(colors.error(`\n  Komut çalıştırılamadı: ${err.message}`));
-            }
+        try {
+            const { spawnSync } = await import('node:child_process');
+            spawnSync(process.argv[0], [process.argv[1], ...args], { stdio: 'inherit' });
+        } catch (err) {
+            console.log(colors.error(`\n  ${symbols.fail} Komut çalıştırılamadı: ${err.message}`));
         }
 
-        printSessionHeader();
-        rl.prompt();
+        // Komut çıktısını oturum satırından ayıran ince ayraç + süre bilgisi.
+        const elapsed = ((Date.now() - startedAt) / 1000).toFixed(1);
+        console.log('');
+        console.log(colors.hint(`  ${symbols.line.repeat(Math.max(10, Math.min(terminalWidth(), 100) - 2))}`));
+        console.log(sessionStatusLine() + colors.hint(`   ${elapsed} sn`));
+        console.log('');
+        nextPrompt();
     }).on('close', () => {
         process.exit(0);
     });

@@ -90,6 +90,7 @@ function buildHourlyRows(hourly, limitCount) {
   const temperatures = hourly.temperature_2m || [];
   const apparent = hourly.apparent_temperature || [];
   const precipitation = hourly.precipitation_probability || [];
+  const weatherCodes = hourly.weather_code || [];
 
   const size = Math.min(times.length, temperatures.length, apparent.length, precipitation.length, limitCount);
   const rows = [];
@@ -100,6 +101,7 @@ function buildHourlyRows(hourly, limitCount) {
       temperature: temperatures[i],
       apparentTemperature: apparent[i],
       precipitationProbability: precipitation[i],
+      weatherCode: weatherCodes[i],
     });
   }
 
@@ -141,7 +143,8 @@ function normalizeAxiosError(err, sourceName) {
 
 export async function fetchCurrentWeather(inputCity) {
   const location = await resolveLocation(inputCity);
-  const cacheKey = `weather_current_${location.latitude}_${location.longitude}`;
+  // v2: weather_code / apparent_temperature / günlük min-max alanları eklendi.
+  const cacheKey = `weather_current_v2_${location.latitude}_${location.longitude}`;
   const cached = getCached(cacheKey);
   if (cached) return cached;
 
@@ -150,7 +153,9 @@ export async function fetchCurrentWeather(inputCity) {
       params: {
         latitude: location.latitude,
         longitude: location.longitude,
-        current: 'temperature_2m,wind_speed_10m,relative_humidity_2m',
+        current: 'temperature_2m,wind_speed_10m,relative_humidity_2m,apparent_temperature,weather_code',
+        daily: 'temperature_2m_max,temperature_2m_min,sunrise,sunset',
+        forecast_days: 1,
         timezone: location.timezone || 'auto',
       },
       timeout: REQUEST_TIMEOUT,
@@ -168,8 +173,16 @@ export async function fetchCurrentWeather(inputCity) {
       current: {
         time: response.data.current.time,
         temperature: response.data.current.temperature_2m,
+        apparentTemperature: response.data.current.apparent_temperature,
         windSpeed: response.data.current.wind_speed_10m,
         humidity: response.data.current.relative_humidity_2m,
+        weatherCode: response.data.current.weather_code,
+      },
+      daily: {
+        temperatureMax: response.data.daily?.temperature_2m_max?.[0],
+        temperatureMin: response.data.daily?.temperature_2m_min?.[0],
+        sunrise: response.data.daily?.sunrise?.[0],
+        sunset: response.data.daily?.sunset?.[0],
       },
     };
 
@@ -186,7 +199,8 @@ export async function fetchHourlyForecast(inputCity, forecastDays = 2) {
     ? Math.min(Math.max(Number.parseInt(forecastDays, 10), 1), 7)
     : 2;
 
-  const cacheKey = `weather_hourly_${location.latitude}_${location.longitude}_${safeDays}`;
+  // v2: satır başına weather_code eklendi.
+  const cacheKey = `weather_hourly_v2_${location.latitude}_${location.longitude}_${safeDays}`;
   const cached = getCached(cacheKey);
   if (cached) return cached;
 
@@ -195,7 +209,7 @@ export async function fetchHourlyForecast(inputCity, forecastDays = 2) {
       params: {
         latitude: location.latitude,
         longitude: location.longitude,
-        hourly: 'temperature_2m,apparent_temperature,precipitation_probability',
+        hourly: 'temperature_2m,apparent_temperature,precipitation_probability,weather_code',
         forecast_days: safeDays,
         timezone: location.timezone || 'auto',
       },

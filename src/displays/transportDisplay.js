@@ -1,9 +1,9 @@
-import Table from 'cli-table3';
+import { createTable } from '../utils/ui.js';
 import chalk from 'chalk';
 import { decodeMojibake } from '../utils/httpClient.js';
 
 export function createEgoScheduleTable(schedule) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Hat'),
       chalk.white.bold('Gün Tipi'),
@@ -22,7 +22,7 @@ export function createEgoScheduleTable(schedule) {
 }
 
 export function createEgoInfoTable(info) {
-  const table = new Table({
+  const table = createTable({
     style: { head: [], border: ['gray'] },
   });
 
@@ -39,7 +39,7 @@ export function createEgoInfoTable(info) {
 }
 
 export function createRouteTable(route) {
-  const table = new Table({
+  const table = createTable({
     style: { head: [], border: ['gray'] },
   });
 
@@ -82,7 +82,7 @@ function formatTimes(times, limit = 30) {
 }
 
 export function createIettPlannedTimesTable(plannedTimes) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Gün Tipi'),
       chalk.white.bold('Yön'),
@@ -107,7 +107,7 @@ export function createIettPlannedTimesTable(plannedTimes) {
 }
 
 export function createIettLiveSummaryTable(liveData) {
-  const table = new Table({
+  const table = createTable({
     style: { head: [], border: ['gray'] },
     wordWrap: true,
   });
@@ -127,7 +127,7 @@ export function createIettLiveSummaryTable(liveData) {
 }
 
 export function createIettLiveDetailTable(liveData) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Kapı No'),
       chalk.white.bold('Yön'),
@@ -160,7 +160,7 @@ export function createIettLiveDetailTable(liveData) {
 }
 
 export function createAdanaBusInfoTable(info) {
-  const table = new Table({
+  const table = createTable({
     style: { head: [], border: ['gray'] },
   });
 
@@ -173,7 +173,7 @@ export function createAdanaBusInfoTable(info) {
 }
 
 export function createAdanaScheduleTable(schedule) {
-  const table = new Table({
+  const table = createTable({
     head: [chalk.white.bold('Sefer Saatleri')],
     colWidths: [70],
     style: { head: [], border: ['gray'] },
@@ -195,7 +195,7 @@ export function createAdanaScheduleTable(schedule) {
 }
 
 export function createAdanaStopsTable(stops) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Durak Adı'),
       chalk.white.bold('Stop ID')
@@ -212,7 +212,7 @@ export function createAdanaStopsTable(stops) {
 }
 
 export function createAdanaStopDetailsTable(stop) {
-  const table = new Table({
+  const table = createTable({
     style: { head: [], border: ['gray'] },
   });
 
@@ -231,7 +231,7 @@ export function createAdanaStopDetailsTable(stop) {
 }
 
 export function createAntalyaScheduleTable(rows) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Sıra'),
       chalk.white.bold('İlk Sefer Zamanı'),
@@ -256,7 +256,7 @@ export function createAntalyaScheduleTable(rows) {
 }
 
 export function createAntalyaStopTable(rows, stopId) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Sıcak Saat'),
       chalk.white.bold('Hat Adı'),
@@ -281,7 +281,7 @@ export function createAntalyaStopTable(rows, stopId) {
 }
 
 export function createBursaRouteStopsTable(stops) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Sıra'),
       chalk.white.bold('Durak Adı'),
@@ -304,7 +304,7 @@ export function createBursaRouteStopsTable(stops) {
 }
 
 export function createBursaLiveTrackingTable(liveData) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Plaka'),
       chalk.white.bold('Hız (km/s)'),
@@ -327,7 +327,7 @@ export function createBursaLiveTrackingTable(liveData) {
 }
 
 export function createBursaStationRemainingTable(remainingTimeData) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Hat Kodu'),
       chalk.white.bold('Kalan Süre (Dk)'),
@@ -352,7 +352,7 @@ export function createBursaStationRemainingTable(remainingTimeData) {
 }
 
 export function createIzmirStopsTable(stops) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Sıra'),
       chalk.white.bold('Durak Adı'),
@@ -371,7 +371,7 @@ export function createIzmirStopsTable(stops) {
 }
 
 export function createIzmirScheduleTable(schedule) {
-  const table = new Table({
+  const table = createTable({
     head: [chalk.white.bold('Sefer Saatleri')],
     colWidths: [70],
     style: { head: [], border: ['gray'] },
@@ -392,7 +392,7 @@ export function createIzmirScheduleTable(schedule) {
 }
 
 export function createIzmirStopScheduleTable(schedule) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Saat'),
       chalk.white.bold('Hat')
@@ -410,7 +410,7 @@ export function createIzmirStopScheduleTable(schedule) {
 }
 
 export function createTrabzonScheduleTable(schedule) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Hafta İçi'),
       chalk.white.bold('Cumartesi'),
@@ -433,7 +433,7 @@ export function createTrabzonScheduleTable(schedule) {
 }
 
 export function createSamsunScheduleTable(times) {
-  const table = new Table({
+  const table = createTable({
     head: [chalk.white.bold('Sefer Saatleri')],
     colWidths: [70],
     style: { head: [], border: ['gray'] },
@@ -454,7 +454,7 @@ export function createSamsunScheduleTable(times) {
 }
 
 export function createSamsunStopsTable(stops) {
-  const table = new Table({
+  const table = createTable({
     head: [chalk.white.bold('Durak Adı / Bilgisi')],
     colWidths: [70],
     style: { head: [], border: ['gray'] },
@@ -469,7 +469,7 @@ export function createSamsunStopsTable(stops) {
 }
 
 export function createMersinScheduleTable(schedule) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Hafta İçi'),
       chalk.white.bold('Cumartesi'),
@@ -498,7 +498,7 @@ export function createMersinScheduleTable(schedule) {
 }
 
 export function createIbbHatListTable(routes) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('#'),
       chalk.white.bold('Hat Kodu'),
@@ -523,7 +523,7 @@ export function createIbbHatListTable(routes) {
 }
 
 export function createIbbDurakListTable(stops) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('#'),
       chalk.white.bold('Durak Kodu'),
@@ -553,7 +553,7 @@ export function createIbbDurakListTable(stops) {
 }
 
 export function createIbbGarajTable(garages) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('#'),
       chalk.white.bold('Garaj Adı'),
@@ -579,7 +579,7 @@ export function createIbbGarajTable(garages) {
 }
 
 export function createIbbFiloKonumTable(vehicles) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('#'),
       chalk.white.bold('Araç No'),
@@ -612,7 +612,7 @@ export function createIbbFiloKonumTable(vehicles) {
 }
 
 export function createIbbKazaTable(accidents) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('#'),
       chalk.white.bold('Açıklama'),

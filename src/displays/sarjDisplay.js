@@ -1,11 +1,11 @@
-import Table from 'cli-table3';
+import { createTable } from '../utils/ui.js';
 import chalk from 'chalk';
 
 /**
  * Şarj sağlayıcıları tablosu
  */
 export function createProvidersTable(providers) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('#'),
       chalk.white.bold('Sağlayıcı Adı'),
@@ -39,7 +39,7 @@ export function createProvidersTable(providers) {
  * Şarj istasyonu arama sonuçları tablosu
  */
 export function createStationSearchTable(stations) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('ID'),
       chalk.white.bold('İstasyon Adı'),
@@ -89,7 +89,7 @@ export function createStationSearchTable(stations) {
  * İstasyon detay tablosu
  */
 export function createStationDetailTable(st) {
-  const table = new Table({
+  const table = createTable({
     style: { head: [], border: ['gray'] },
     wordWrap: true,
   });
@@ -128,7 +128,7 @@ export function createStationDetailTable(st) {
  * İstasyon soket detayları tablosu
  */
 export function createSocketsTable(sockets) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('#'),
       chalk.white.bold('Soket Tipi'),

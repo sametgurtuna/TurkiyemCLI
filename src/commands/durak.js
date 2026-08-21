@@ -7,6 +7,7 @@ import { getBursaStationRemainingTime } from '../services/bursaService.js';
 import { searchIzmirStops, getIzmirStopSchedule } from '../services/izmirService.js';
 import { createAdanaStopDetailsTable, createAntalyaStopTable, createBursaStationRemainingTable, createIzmirStopScheduleTable } from '../utils/display.js';
 import prompts from 'prompts';
+import { emptyState } from '../utils/ui.js';
 
 export async function durakSorgula(stopId) {
     if (!stopId) {
@@ -27,8 +28,10 @@ export async function durakSorgula(stopId) {
         await handler(stopId);
     } else {
         const supported = Object.keys(cityHandlers).join(' | ');
-        console.log(chalk.yellow(`Durak sorgulaması şu an sadece Adana, Antalya, Bursa ve İzmir için destekleniyor.`));
-        console.log(chalk.cyan(`Şehri değiştirmek için: turkiyem sehir ${supported}`));
+        console.log(emptyState(
+            'Durak sorgulaması şu an sadece Adana, Antalya, Bursa ve İzmir için destekleniyor.',
+            `Şehri değiştirmek için: turkiyem sehir ${supported}`
+        ));
         return;
     }
 }

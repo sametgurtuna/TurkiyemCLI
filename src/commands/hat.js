@@ -11,6 +11,7 @@ import { fetchTrabzonBuses, fetchTrabzonBusSchedule } from '../services/trabzonS
 import { fetchSamsunBuses, fetchSamsunBusSchedule } from '../services/samsunService.js';
 import { fetchMersinRoutes, fetchMersinSchedule } from '../services/mersinService.js';
 import prompts from 'prompts';
+import { emptyState } from '../utils/ui.js';
 import {
   createEgoInfoTable,
   createIettLiveDetailTable,
@@ -41,9 +42,10 @@ export async function hatSorgula(hatNo) {
   const city = getCity();
 
   if (!city) {
-    console.log(chalk.yellow('Henüz şehir seçmediniz. Önce şehir seçin:'));
-    console.log(chalk.cyan('  turkiyem sehir ankara'));
-    console.log(chalk.cyan('  turkiyem sehir istanbul'));
+    console.log(emptyState(
+      'Henüz şehir seçmediniz.',
+      'Önce bir şehir seçin:\n  turkiyem sehir istanbul\n  turkiyem sehir ankara\n\nDesteklenen şehirlerin tamamı için: turkiyem sehir'
+    ));
     return;
   }
 
@@ -60,7 +62,7 @@ export async function hatSorgula(hatNo) {
   };
 
   if (city === 'kayseri') {
-    console.log(chalk.yellow('Kayseri için şu anda yalnızca Nöbetçi Eczane desteği mevcuttur.'));
+    console.log(emptyState('Kayseri için şu anda yalnızca Nöbetçi Eczane desteği mevcuttur.'));
     console.log(chalk.cyan('  Nöbetçi eczaneleri sorgulamak için: turkiyem eczane nobetci'));
     return;
   }
@@ -212,8 +214,10 @@ export async function hatCanliSorgula(hatNo, options = {}) {
 
   const city = getCity();
   if (!city) {
-    console.log(chalk.yellow('Henüz şehir seçmediniz. Önce şehir seçin:'));
-    console.log(chalk.cyan('  turkiyem sehir istanbul'));
+    console.log(emptyState(
+      'Henüz şehir seçmediniz.',
+      'Canlı takip için önce şehir seçin:\n  turkiyem sehir istanbul\n  turkiyem sehir bursa'
+    ));
     return;
   }
 

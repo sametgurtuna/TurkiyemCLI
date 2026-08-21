@@ -1,4 +1,4 @@
-import Table from 'cli-table3';
+import { createTable } from '../utils/ui.js';
 import chalk from 'chalk';
 import boxen from 'boxen';
 
@@ -6,7 +6,7 @@ import boxen from 'boxen';
  * Namaz vakitleri tablosunu ve geri sayım kutusunu oluşturur.
  */
 export function createPrayerTable(data) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Vakit'),
       chalk.cyan.bold('Saat'),

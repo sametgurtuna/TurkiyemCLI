@@ -1,11 +1,11 @@
-import Table from 'cli-table3';
+import { createTable } from '../utils/ui.js';
 import chalk from 'chalk';
 
 /**
  * İstanbul Şehir Hatları ana vapur hatları tablosunu oluşturur.
  */
 export function createSehirHatlariRoutesTable(routes) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Kod'),
       chalk.cyan.bold('Hat Adı'),
@@ -35,7 +35,7 @@ export function createSehirHatlariRoutesTable(routes) {
  * İzmir İZDENİZ iskeleler tablosunu oluşturur.
  */
 export function createIzdenizPiersTable(piers) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('ID'),
       chalk.cyan.bold('İskele Adı'),

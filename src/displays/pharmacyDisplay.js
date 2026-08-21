@@ -1,8 +1,8 @@
-import Table from 'cli-table3';
+import { createTable } from '../utils/ui.js';
 import chalk from 'chalk';
 
 export function createNobetciEczaneTable(eczaneler) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('İlçe'),
       chalk.white.bold('Eczane Adı'),
@@ -43,7 +43,7 @@ export function createNobetciEczaneTable(eczaneler) {
 }
 
 export function createEczaneListTable(eczaneler) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('İlçe'),
       chalk.white.bold('Eczane Adı'),
@@ -82,7 +82,7 @@ export function createEczaneListTable(eczaneler) {
 }
 
 export function createPharmacyDetailTable(p) {
-  const table = new Table({
+  const table = createTable({
     style: { head: [], border: ['gray'] },
     wordWrap: true,
   });
@@ -118,7 +118,7 @@ export function createPharmacyDetailTable(p) {
 }
 
 export function createEczaneApiCityTable(cities) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Plaka'),
       chalk.white.bold('İl Adı'),
@@ -144,7 +144,7 @@ export function createEczaneApiCityTable(cities) {
 }
 
 export function createEczaneApiDistrictTable(cityName, districts) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('#'),
       chalk.white.bold('İlçe Adı'),
@@ -168,7 +168,7 @@ export function createEczaneApiDistrictTable(cityName, districts) {
 }
 
 export function createEczaneNearbyTable(pharmacies) {
-  const table = new Table({
+  const table = createTable({
     head: [
       chalk.white.bold('Mesafe'),
       chalk.white.bold('Eczane Adı'),
