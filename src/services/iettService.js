@@ -1,0 +1,616 @@
+import axios from 'axios';
+import { CACHE_TTL, getCached, setCached } from '../utils/cache.js';
+import { decodeMojibake, BROWSER_USER_AGENT } from '../utils/httpClient.js';
+
+const DATASTORE_SQL_URL = 'https://data.ibb.gov.tr/api/3/action/datastore_search_sql';
+const DATASTORE_SEARCH_URL = 'https://data.ibb.gov.tr/api/3/action/datastore_search';
+const PLANNED_TIME_SOAP_URL = 'https://api.ibb.gov.tr/iett/UlasimAnaVeri/PlanlananSeferSaati.asmx';
+const PLANNED_TIME_SOAP_ACTION = 'http://tempuri.org/GetPlanlananSeferSaati_json';
+const LIVE_SOAP_URL = 'https://api.ibb.gov.tr/iett/FiloDurum/SeferGerceklesme.asmx';
+const LIVE_SOAP_ACTION = 'http://tempuri.org/GetHatOtoKonum_json';
+
+const HAT_DURAK_GUZERGAH_URL = 'https://api.ibb.gov.tr/iett/UlasimAnaVeri/HatDurakGuzergah.asmx';
+const IBB_CRM_URL = 'https://api.ibb.gov.tr/iett/ibb/ibb.asmx';
+
+const RESOURCE_IDS = {
+  routes: '46dbe388-c8c2-45c4-ac72-c06953de56a2',
+  trips: '7ff49bdd-b0d2-4a6e-9392-b598f77f5070',
+  stopTimes: '23778613-16fe-4d30-b8b8-8ca934ed2978',
+  stops: '2299bc82-983b-4bdf-8520-5cef8c555e29',
+};
+
+const API_TIMEOUT = 30000;
+const API_HEADERS = { 'User-Agent': BROWSER_USER_AGENT };
+
+function escapeSQL(str) {
+  return str.replace(/'/g, "''");
+}
+
+function cleanRecordStrings(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  const cleaned = Array.isArray(obj) ? [] : {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (typeof v === 'string') {
+      cleaned[k] = decodeMojibake(v);
+    } else if (typeof v === 'object' && v !== null) {
+      cleaned[k] = cleanRecordStrings(v);
+    } else {
+      cleaned[k] = v;
+    }
+  }
+  return cleaned;
+}
+
+async function datastoreSQL(sql) {
+  try {
+    const response = await axios.get(DATASTORE_SQL_URL, {
+      params: { sql },
+      timeout: API_TIMEOUT,
+      headers: API_HEADERS,
+    });
+
+    if (!response.data?.success) {
+      throw new Error('IETT SQL sorgusu başarısız');
+    }
+
+    return (response.data.result.records || []).map(cleanRecordStrings);
+  } catch (err) {
+    if (err.response?.status === 403) {
+      throw new Error('IETT veri kaynağı erişim engeli (403 Forbidden). Lütfen daha sonra tekrar deneyin.');
+    }
+    if (err.code === 'ECONNABORTED') {
+      throw new Error('IETT veri kaynağı zaman aşımına uğradı. Lütfen tekrar deneyin.');
+    }
+    throw err;
+  }
+}
+
+async function datastoreSearch(resourceId, options = {}) {
+  const params = {
+    resource_id: resourceId,
+    limit: options.limit || 100,
+  };
+
+  if (options.filters) params.filters = JSON.stringify(options.filters);
+  if (options.sort) params.sort = options.sort;
+
+  try {
+    const response = await axios.get(DATASTORE_SEARCH_URL, {
+      params,
+      timeout: API_TIMEOUT,
+      headers: API_HEADERS,
+    });
+
+    if (!response.data?.success) {
+      throw new Error('IETT veri kaynağı başarısız yanıt döndürdü');
+    }
+
+    const result = response.data.result;
+    if (Array.isArray(result.records)) {
+      result.records = result.records.map(cleanRecordStrings);
+    }
+    return result;
+  } catch (err) {
+    if (err.response?.status === 403) {
+      throw new Error('IETT veri kaynağı erişim engeli (403 Forbidden). Lütfen daha sonra tekrar deneyin.');
+    }
+    if (err.code === 'ECONNABORTED') {
+      throw new Error('IETT veri kaynağı zaman aşımına uğradı. Lütfen tekrar deneyin.');
+    }
+    throw err;
+  }
+}
+
+function extractStopsFromName(longName) {
+  if (!longName || longName === '-') return { first: '-', last: '-' };
+
+  const separators = [' - ', ' – ', '-'];
+  for (const sep of separators) {
+    const parts = longName.split(sep).map((p) => p.trim()).filter(Boolean);
+    if (parts.length >= 2) {
+      return { first: parts[0], last: parts[parts.length - 1] };
+    }
+  }
+
+  return { first: longName, last: '-' };
+}
+
+function buildPlannedTimeSoapBody(routeCode) {
+  return `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetPlanlananSeferSaati_json xmlns="http://tempuri.org/">
+      <HatKodu>${routeCode}</HatKodu>
+    </GetPlanlananSeferSaati_json>
+  </soap:Body>
+</soap:Envelope>`;
+}
+
+function normalizeDirection(value) {
+  if (value === 'G') return 'Gidiş';
+  if (value === 'D') return 'Dönüş';
+  return value || '-';
+}
+
+function normalizeDayType(value) {
+  if (value === 'I') return 'Hafta İçi';
+  if (value === 'C') return 'Cumartesi';
+  if (value === 'P') return 'Pazar';
+  return value || '-';
+}
+
+function normalizePlannedTimeRecords(records) {
+  return records.map((item) => ({
+    routeCode: item.SHATKODU || '-',
+    routeName: item.HATADI || '-',
+    routeVariant: item.SGUZERAH || '-',
+    direction: normalizeDirection(item.SYON),
+    dayType: normalizeDayType(item.SGUNTIPI),
+    serviceType: item.SSERVISTIPI || '-',
+    departureTime: item.DT || '-',
+  }));
+}
+
+function groupPlannedTimeRecords(records) {
+  const groups = new Map();
+
+  for (const record of records) {
+    const key = `${record.dayType}|${record.direction}`;
+    if (!groups.has(key)) {
+      groups.set(key, {
+        gunTipi: record.dayType,
+        yon: record.direction,
+        saatler: [],
+        servisTipleri: new Set(),
+        guzergahlar: new Set(),
+      });
+    }
+
+    const group = groups.get(key);
+    group.saatler.push(record.departureTime);
+    group.servisTipleri.add(record.serviceType);
+    group.guzergahlar.add(record.routeVariant);
+  }
+
+  return Array.from(groups.values()).map((group) => ({
+    gunTipi: group.gunTipi,
+    yon: group.yon,
+    saatler: Array.from(new Set(group.saatler)).sort(),
+    servisTipleri: Array.from(group.servisTipleri),
+    guzergahlar: Array.from(group.guzergahlar),
+  }));
+}
+
+function extractSoapResultJson(xmlText) {
+  const match = xmlText.match(
+    /<GetPlanlananSeferSaati_jsonResult>([\s\S]*?)<\/GetPlanlananSeferSaati_jsonResult>/i,
+  );
+
+  if (!match || !match[1]) return [];
+  const jsonText = match[1].trim();
+  if (!jsonText || jsonText === '[]') return [];
+
+  return JSON.parse(jsonText);
+}
+
+function buildLiveSoapBody(routeCode) {
+  return `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetHatOtoKonum_json xmlns="http://tempuri.org/">
+      <HatNo>${routeCode}</HatNo>
+    </GetHatOtoKonum_json>
+  </soap:Body>
+</soap:Envelope>`;
+}
+
+function extractLiveSoapResultJson(xmlText) {
+  const match = xmlText.match(
+    /<GetHatOtoKonum_jsonResult>([\s\S]*?)<\/GetHatOtoKonum_jsonResult>/i,
+  );
+
+  if (!match || !match[1]) return [];
+  const jsonText = match[1].trim();
+  if (!jsonText || jsonText === '[]') return [];
+  return JSON.parse(jsonText);
+}
+
+function normalizeLiveVehicles(records) {
+  return records.map((item) => ({
+    vehicleDoorNo: item.kapino || '-',
+    longitude: item.boylam || '-',
+    latitude: item.enlem || '-',
+    routeCode: item.hatkodu || '-',
+    routeVariantCode: item.guzergahkodu || '-',
+    routeName: item.hatad || '-',
+    direction: item.yon || '-',
+    lastLocationTime: item.son_konum_zamani || '-',
+    nearestStopCode: item.yakinDurakKodu || '-',
+  }));
+}
+
+function parseDateValue(value) {
+  if (!value || value === '-') return Number.NaN;
+  const normalized = value.includes('T') ? value : value.replace(' ', 'T');
+  const ts = new Date(normalized).getTime();
+  return Number.isNaN(ts) ? Number.NaN : ts;
+}
+
+function buildLiveSummary(vehicles) {
+  const directionCounter = new Map();
+  let latestTime = '-';
+  let latestTs = Number.NEGATIVE_INFINITY;
+
+  for (const vehicle of vehicles) {
+    const direction = vehicle.direction || '-';
+    directionCounter.set(direction, (directionCounter.get(direction) || 0) + 1);
+
+    const ts = parseDateValue(vehicle.lastLocationTime);
+    if (!Number.isNaN(ts) && ts > latestTs) {
+      latestTs = ts;
+      latestTime = vehicle.lastLocationTime;
+    }
+  }
+
+  const directionDistribution = Array.from(directionCounter.entries()).map(([direction, count]) => ({
+    direction,
+    count,
+  }));
+
+  return {
+    totalVehicles: vehicles.length,
+    latestLocationTime: latestTime,
+    directionDistribution,
+  };
+}
+
+export async function fetchIettPlannedTimes(routeCode) {
+  const code = routeCode.toUpperCase();
+  const cacheKey = `iett_soap_times_${code}`;
+  const cached = getCached(cacheKey);
+  if (cached) return cached;
+
+  const body = buildPlannedTimeSoapBody(code);
+
+  try {
+    const response = await axios.post(PLANNED_TIME_SOAP_URL, body, {
+      timeout: 15000,
+      headers: {
+        'Content-Type': 'text/xml; charset=utf-8',
+        SOAPAction: PLANNED_TIME_SOAP_ACTION,
+        ...API_HEADERS,
+      },
+      responseType: 'text',
+      maxRedirects: 5,
+      validateStatus: (status) => status >= 200 && status < 600,
+    });
+
+    if (response.status === 403) {
+      throw new Error('IETT SOAP servisi erişimi engellendi (403).');
+    }
+    if (response.status >= 500) {
+      throw new Error(`IETT SOAP servisi şu anda erişilemiyor (HTTP ${response.status}).`);
+    }
+    if (response.status !== 200) {
+      throw new Error(`IETT SOAP servisi HTTP ${response.status} döndürdü.`);
+    }
+
+    const parsed = extractSoapResultJson(response.data);
+    const normalized = normalizePlannedTimeRecords(parsed);
+    const grouped = groupPlannedTimeRecords(normalized);
+
+    const result = {
+      routeCode: code,
+      totalRecords: normalized.length,
+      groups: grouped,
+    };
+
+    setCached(cacheKey, result, CACHE_TTL.IETT_SOAP);
+    return result;
+  } catch (err) {
+    if (err.code === 'ECONNABORTED') {
+      throw new Error('IETT SOAP servisi zaman aşımına uğradı.');
+    }
+    if (err.code === 'ENOTFOUND' || err.code === 'ECONNREFUSED') {
+      throw new Error('IETT SOAP servisine bağlanılamadı.');
+    }
+    if (err instanceof SyntaxError) {
+      throw new Error('IETT SOAP yanıtı çözümlenemedi.');
+    }
+    throw err;
+  }
+}
+
+async function tryGetStopCount(routeId) {
+  try {
+    const tripsResult = await datastoreSearch(RESOURCE_IDS.trips, {
+      filters: { route_id: routeId },
+      limit: 10,
+    });
+
+    const trips = tripsResult.records;
+    if (trips.length === 0) return 0;
+
+    for (const trip of trips) {
+      const stResult = await datastoreSearch(RESOURCE_IDS.stopTimes, {
+        filters: { trip_id: trip.trip_id },
+        limit: 1,
+      });
+
+      if (stResult.total > 0) {
+        return stResult.total;
+      }
+    }
+
+    return 0;
+  } catch {
+    return 0;
+  }
+}
+
+export async function fetchIettRoute(routeCode) {
+  const cacheKey = `iett_route_${routeCode.toUpperCase()}`;
+  const cached = getCached(cacheKey);
+  if (cached) return cached;
+
+  const code = routeCode.toUpperCase();
+  const sql = `SELECT * FROM "${RESOURCE_IDS.routes}" WHERE UPPER(route_short_name)='${escapeSQL(code)}' LIMIT 20`;
+  const routes = await datastoreSQL(sql);
+
+  if (!routes || routes.length === 0) {
+    throw new Error(`"${routeCode}" hat numarası IETT verilerinde bulunamadı.`);
+  }
+
+  const route = routes[0];
+  const { first, last } = extractStopsFromName(route.route_long_name);
+
+  const routeCount = routes.length;
+  const directions = routes
+    .map((r) => r.route_long_name)
+    .filter((v, i, a) => a.indexOf(v) === i);
+
+  const stopCount = await tryGetStopCount(route.route_id);
+
+  const result = {
+    routeShortName: route.route_short_name || code,
+    routeLongName: route.route_long_name || '-',
+    stopCount,
+    firstStop: first,
+    lastStop: last,
+    routeVariants: routeCount,
+    directions,
+  };
+
+  setCached(cacheKey, result);
+  return result;
+}
+
+export async function fetchIettRouteWithPlannedTimes(routeCode) {
+  const routeSummary = await fetchIettRoute(routeCode);
+
+  try {
+    const plannedTimes = await fetchIettPlannedTimes(routeCode);
+    return {
+      routeSummary,
+      plannedTimes,
+      sourceStatus: {
+        gtfs: true,
+        soap: true,
+        soapError: null,
+      },
+    };
+  } catch (err) {
+    return {
+      routeSummary,
+      plannedTimes: null,
+      sourceStatus: {
+        gtfs: true,
+        soap: false,
+        soapError: err.message || 'IETT SOAP servisi kullanılamadı.',
+      },
+    };
+  }
+}
+
+export async function fetchIettLiveVehicles(routeCode) {
+  const code = routeCode.toUpperCase();
+  const cacheKey = `iett_live_${code}`;
+  const cached = getCached(cacheKey);
+  if (cached) return cached;
+
+  const body = buildLiveSoapBody(code);
+
+  try {
+    const response = await axios.post(LIVE_SOAP_URL, body, {
+      timeout: 15000,
+      headers: {
+        'Content-Type': 'text/xml; charset=utf-8',
+        SOAPAction: LIVE_SOAP_ACTION,
+        ...API_HEADERS,
+      },
+      responseType: 'text',
+      maxRedirects: 5,
+      validateStatus: (status) => status >= 200 && status < 600,
+    });
+
+    if (response.status === 403) {
+      throw new Error('IETT canlı konum servisi erişimi engellendi (403).');
+    }
+    if (response.status >= 500) {
+      throw new Error(`IETT canlı konum servisi şu anda erişilemiyor (HTTP ${response.status}).`);
+    }
+    if (response.status !== 200) {
+      throw new Error(`IETT canlı konum servisi HTTP ${response.status} döndürdü.`);
+    }
+
+    const parsed = extractLiveSoapResultJson(response.data);
+    const vehicles = normalizeLiveVehicles(parsed);
+
+    if (vehicles.length === 0) {
+      throw new Error(`"${routeCode}" hattı için aktif araç konumu bulunamadı.`);
+    }
+
+    const summary = buildLiveSummary(vehicles);
+    const result = {
+      routeCode: code,
+      summary,
+      vehicles,
+    };
+
+    setCached(cacheKey, result, CACHE_TTL.IETT_LIVE);
+    return result;
+  } catch (err) {
+    if (err.code === 'ECONNABORTED') {
+      throw new Error('IETT canlı konum servisi zaman aşımına uğradı.');
+    }
+    if (err.code === 'ENOTFOUND' || err.code === 'ECONNREFUSED') {
+      throw new Error('IETT canlı konum servisine bağlanılamadı.');
+    }
+    if (err instanceof SyntaxError) {
+      throw new Error('IETT canlı konum yanıtı çözümlenemedi.');
+    }
+    throw err;
+  }
+}
+
+// ─── Yeni IBB SOAP API Fonksiyonları ─────────────────────────────────
+
+function buildGenericSoapBody(method, params = {}) {
+  const paramXml = Object.entries(params)
+    .map(([key, value]) => `      <${key}>${value}</${key}>`)
+    .join('\n');
+
+  return `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <${method} xmlns="http://tempuri.org/">
+${paramXml}
+    </${method}>
+  </soap:Body>
+</soap:Envelope>`;
+}
+
+function extractGenericSoapJson(xmlText, method) {
+  const tag = `${method}Result`;
+  const regex = new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, 'i');
+  const match = xmlText.match(regex);
+
+  if (!match || !match[1]) return [];
+  const jsonText = match[1].trim();
+  if (!jsonText || jsonText === '[]') return [];
+
+  return JSON.parse(jsonText);
+}
+
+async function callSoapEndpoint(url, method, params = {}, cacheKey, cacheTtl) {
+  const cached = getCached(cacheKey);
+  if (cached) return cached;
+
+  const body = buildGenericSoapBody(method, params);
+  const soapAction = `http://tempuri.org/${method}`;
+
+  try {
+    const response = await axios.post(url, body, {
+      timeout: 20000,
+      headers: {
+        'Content-Type': 'text/xml; charset=utf-8',
+        SOAPAction: soapAction,
+        ...API_HEADERS,
+      },
+      responseType: 'text',
+      maxRedirects: 5,
+      validateStatus: (status) => status >= 200 && status < 600,
+    });
+
+    if (response.status === 403) {
+      throw new Error(`IBB SOAP servisi erişimi engellendi (403). Metot: ${method}`);
+    }
+    if (response.status >= 500) {
+      throw new Error(`IBB SOAP servisi şu anda erişilemiyor (HTTP ${response.status}). Metot: ${method}`);
+    }
+    if (response.status !== 200) {
+      throw new Error(`IBB SOAP servisi HTTP ${response.status} döndürdü. Metot: ${method}`);
+    }
+
+    const parsed = extractGenericSoapJson(response.data, method);
+    setCached(cacheKey, parsed, cacheTtl || CACHE_TTL.DEFAULT);
+    return parsed;
+  } catch (err) {
+    if (err.code === 'ECONNABORTED') {
+      throw new Error(`IBB SOAP servisi zaman aşımına uğradı. Metot: ${method}`);
+    }
+    if (err.code === 'ENOTFOUND' || err.code === 'ECONNREFUSED') {
+      throw new Error(`IBB SOAP servisine bağlanılamadı. Metot: ${method}`);
+    }
+    if (err instanceof SyntaxError) {
+      throw new Error(`IBB SOAP yanıtı çözümlenemedi. Metot: ${method}`);
+    }
+    throw err;
+  }
+}
+
+/**
+ * Tüm IETT hatlarını getirir (GetHat_json).
+ * Opsiyonel HatKodu parametresiyle belirli bir hat filtrelenebilir.
+ */
+export async function fetchIettAllRoutes(hatKodu) {
+  const params = hatKodu ? { HatKodu: hatKodu.toUpperCase() } : {};
+  const cacheKey = `ibb_hatlar_${hatKodu || 'all'}`;
+  return callSoapEndpoint(HAT_DURAK_GUZERGAH_URL, 'GetHat_json', params, cacheKey, CACHE_TTL.DEFAULT);
+}
+
+/**
+ * Tüm IETT duraklarını getirir (GetDurak_json).
+ * Opsiyonel DurakKodu parametresiyle belirli bir durak filtrelenebilir.
+ */
+export async function fetchIettAllStops(durakKodu) {
+  const params = durakKodu ? { DurakKodu: durakKodu } : {};
+  const cacheKey = `ibb_duraklar_${durakKodu || 'all'}`;
+  return callSoapEndpoint(HAT_DURAK_GUZERGAH_URL, 'GetDurak_json', params, cacheKey, CACHE_TTL.DEFAULT);
+}
+
+/**
+ * IETT garaj bilgilerini getirir (GetGaraj_json).
+ */
+export async function fetchIettGarages() {
+  return callSoapEndpoint(HAT_DURAK_GUZERGAH_URL, 'GetGaraj_json', {}, 'ibb_garajlar', CACHE_TTL.DEFAULT);
+}
+
+/**
+ * Tüm IETT filo araç konumlarını getirir (GetFiloAracKonum_json).
+ * Parametresiz çağrılır.
+ */
+export async function fetchIettFleetPositions() {
+  return callSoapEndpoint(LIVE_SOAP_URL, 'GetFiloAracKonum_json', {}, 'ibb_filo_konum', CACHE_TTL.IETT_LIVE);
+}
+
+/**
+ * IETT kaza lokasyonlarını getirir (GetKazaLokasyon_json).
+ */
+export async function fetchIettAccidentLocations() {
+  return callSoapEndpoint(LIVE_SOAP_URL, 'GetKazaLokasyon_json', {}, 'ibb_kaza_lokasyon', CACHE_TTL.IETT_LIVE);
+}
+
+/**
+ * IBB CRM – Hat bilgisi getirir (HatServisi_GYY).
+ */
+export async function fetchIettCrmHat(hatKodu) {
+  const params = hatKodu ? { hat_kodu: hatKodu.toUpperCase() } : {};
+  const cacheKey = `ibb_crm_hat_${hatKodu || 'all'}`;
+  return callSoapEndpoint(IBB_CRM_URL, 'HatServisi_GYY', params, cacheKey, CACHE_TTL.DEFAULT);
+}
+
+/**
+ * IBB CRM – Durak detay bilgisi getirir (DurakDetay_GYY).
+ */
+export async function fetchIettCrmDurak(hatKodu) {
+  const params = hatKodu ? { hat_kodu: hatKodu.toUpperCase() } : {};
+  const cacheKey = `ibb_crm_durak_${hatKodu || 'all'}`;
+  return callSoapEndpoint(IBB_CRM_URL, 'DurakDetay_GYY', params, cacheKey, CACHE_TTL.DEFAULT);
+}

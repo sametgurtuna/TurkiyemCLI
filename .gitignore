@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.local
+
+# Cache and temporary files
+playground/
+scratch/
+*.log
+error_log.txt
+error_log_cmd.txt
+*.html
+*.cjs
+*.zip
+test_gtfs/
+bursa-main.js
+izmir-test.js
+
+# OS files
+.DS_Store
+Thumbs.db
