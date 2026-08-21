@@ -25,6 +25,7 @@ export const icons = {
   weather: '⛅',
   finance: '💱',
   pharmacy: '💊',
+  charging: '⚡',
   water: '💧',
   ibb: '🚏',
   clean: '🧹',

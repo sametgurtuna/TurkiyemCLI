@@ -19,7 +19,7 @@ const logo = `
 const turkishFlagGradient = gradient(['#E30A17', '#ffffff', '#E30A17']);
 
 function buildBanner() {
-  const subtitle = `🇹🇷 Türkiye Toplu Taşıma, Deprem & Hava Durumu CLI  ${chalk.dim(`v${pkg.version}`)}`;
+  const subtitle = `🇹🇷 Türkiye Toplu Taşıma, Deprem, Eczane, Şarj & Hava Durumu CLI  ${chalk.dim(`v${pkg.version}`)}`;
 
   return [
     turkishFlagGradient(logo),
@@ -32,73 +32,96 @@ export function printBanner() {
   console.log(buildBanner());
 }
 
-const CATEGORIES = [
+export const CATEGORIES = [
   {
-    title: 'Şehir & Genel',
+    title: 'Şehir & Genel Ayarlar',
     icon: icons.city,
     rows: [
-      ['turkiyem sehir [şehir]', 'Şehir seç veya listele (istanbul, ankara, izmir, ...)'],
-      ['turkiyem menu', 'Sürekli oturum (REPL) modunu başlat'],
-      ['turkiyem temizle', 'Önbelleği ve ayarları sıfırla'],
-      ['turkiyem --version', 'Sürüm numarasını göster'],
+      ['turkiyem sehir [şehir]', 'Şehir seç veya listele (10 şehir desteği)'],
+      ['turkiyem menu', 'Sürekli interaktif oturum (REPL) modu'],
+      ['turkiyem temizle', 'Kalıcı disk önbelleğini ve ayarları sıfırla'],
+      ['turkiyem help', 'Tüm komutları kategorili listele'],
+      ['turkiyem -v, --version', 'Sürüm numarasını göster'],
     ],
   },
   {
-    title: 'Toplu Taşıma',
+    title: 'Toplu Taşıma & Canlı Konum (10 Şehir)',
     icon: icons.route,
     rows: [
-      ['turkiyem hat <numara>', 'Hat bilgisi ve sefer saatlerini sorgula'],
-      ['turkiyem hat canli <numara> [--detay]', 'Canlı araç konumu (İstanbul, Bursa)'],
-      ['turkiyem durak <id|isim>', 'Durak bazlı detay sorgula'],
+      ['turkiyem hat <numara>', 'Hat güzergahı ve sefer saatleri (İstanbul, Ankara, İzmir, Adana, Antalya, Bursa, Trabzon, Samsun, Mersin)'],
+      ['turkiyem hat canli <numara> [-d]', 'Anlık canlı araç konumu ve harita (İstanbul, Bursa)'],
+      ['turkiyem durak <id|isim>', 'Durağa yaklaşan araçlar ve geçen hatlar'],
     ],
   },
   {
-    title: 'İBB / İETT',
-    icon: icons.ibb,
+    title: 'Sağlık & Nöbetçi Eczane (81 İl / EczaneAPI)',
+    icon: icons.pharmacy,
     rows: [
-      ['turkiyem ibb hatlar [arama]', 'IETT hat listesini sorgula/filtrele'],
-      ['turkiyem ibb duraklar [arama]', 'IETT durak listesini sorgula/ara'],
-      ['turkiyem ibb filo', 'IETT filo araç konumlarını göster'],
-      ['turkiyem ibb garaj', 'IETT garaj bilgilerini göster'],
-      ['turkiyem ibb kaza', 'Güncel kaza lokasyonlarını göster'],
+      ['turkiyem eczane nobetci [ilçe]', 'Nöbetçi eczaneleri listele (81 il & İzmir/Kayseri)'],
+      ['turkiyem eczane nobetci -s <il> -t <tarih>', 'Şehir ve tarih filtreli nöbetçi eczane sorgusu'],
+      ['turkiyem eczane detay <eczaneId>', 'Eczane çalışma saatleri, telefon, sahip ve harita'],
+      ['turkiyem eczane sehirler', '81 ilin eczane ve ilçe istatistikleri'],
+      ['turkiyem eczane ilceler [şehir]', 'Şehrin tüm ilçelerini ve eczane sayılarını listele'],
+      ['turkiyem eczane yakin <lat> <lng> [km]', 'Konuma en yakın nöbetçi eczaneler (Mesafe bazlı)'],
+      ['turkiyem eczane key [apiKey]', 'EczaneAPI anahtarını kaydet veya kontrol et'],
+      ['turkiyem eczane ara <kelime>', 'Eczane adı veya adresine göre arama yap'],
+    ],
+  },
+  {
+    title: 'Elektrikli Araç Şarj İstasyonları (sarj.dev)',
+    icon: icons.charging,
+    rows: [
+      ['turkiyem sarj saglayicilar', 'Tüm şarj ağı işletmecileri (ZES, Trugo, Eşarj, Voltrun vb.)'],
+      ['turkiyem sarj ara [sorgu]', 'Şehir, ilçe veya sağlayıcı adına göre şarj istasyonu ara'],
+      ['turkiyem sarj detay <istasyonId>', 'Soket tipleri (CCS/Type2), güç (kW), AC/DC ve fiyatlar'],
     ],
   },
   {
     title: 'İZSU (İzmir Su & Baraj)',
     icon: icons.water,
     rows: [
-      ['turkiyem izsu kesinti', 'Güncel su kesintileri'],
+      ['turkiyem izsu kesinti', 'Güncel arıza ve su kesintileri'],
       ['turkiyem izsu baraj', 'Baraj ve kuyu doluluk oranları'],
-      ['turkiyem izsu uretim [-g|-y]', 'Günlük/yıllık su üretimi dağılımı'],
-      ['turkiyem izsu sube [-v]', 'İZSU şube ve vezneleri'],
-      ['turkiyem izsu analiz [-h|-c|-b]', 'Su analiz raporları'],
+      ['turkiyem izsu uretim [-g|-y]', 'Günlük / yıllık su üretimi dağılımı'],
+      ['turkiyem izsu sube [-v]', 'İZSU şubeleri ve vezneleri'],
+      ['turkiyem izsu analiz [-h|-c|-b]', 'Su kalitesi analiz raporları'],
     ],
   },
   {
-    title: 'Deprem (AFAD)',
+    title: 'Deprem Bildirimleri (AFAD)',
     icon: icons.quake,
     rows: [
-      ['turkiyem deprem son24', 'Son 24 saatteki depremler'],
-      ['turkiyem deprem 7gun', 'Son 7 gündeki depremler'],
-      ['turkiyem deprem buyukluk <değer>', 'Büyüklüğe göre deprem filtrele'],
+      ['turkiyem deprem son24 [-l 10]', 'Son 24 saatteki depremler (limit seçenekli)'],
+      ['turkiyem deprem 7gun [-l 20]', 'Son 7 gündeki tüm depremler'],
+      ['turkiyem deprem buyukluk <değer>', 'Büyüklüğe göre filtrele (örn: 4.0 ve üzeri)'],
     ],
   },
   {
-    title: 'Hava Durumu (Open-Meteo)',
+    title: 'Hava Durumu & Kalite (Open-Meteo)',
     icon: icons.weather,
     rows: [
-      ['turkiyem hava guncel [şehir|lat,lon]', 'Güncel hava durumu'],
-      ['turkiyem hava saatlik [şehir|lat,lon] -g 2', 'Saatlik hava tahmini'],
-      ['turkiyem hava kalite [şehir|lat,lon]', 'Hava kalitesi ölçümleri'],
+      ['turkiyem hava guncel [şehir|lat,lon]', 'Anlık sıcaklık, rüzgar ve hava durumu'],
+      ['turkiyem hava saatlik [şehir] [-g 3]', 'Saatlik tahmin ve ASCII sıcaklık grafiği'],
+      ['turkiyem hava kalite [şehir]', 'Hava kalitesi ölçümleri (PM10, PM2.5, CO, NO₂)'],
     ],
   },
   {
-    title: 'Sağlık & Döviz',
-    icon: icons.pharmacy,
+    title: 'Döviz Kurları (TCMB)',
+    icon: icons.finance,
     rows: [
-      ['turkiyem eczane nobetci [ilçe]', 'Nöbetçi eczaneleri sorgula (İzmir, Kayseri)'],
-      ['turkiyem eczane ara <kelime>', 'Eczane adı/adresine göre ara'],
-      ['turkiyem doviz [--tum]', 'TCMB güncel döviz kurları'],
+      ['turkiyem doviz', 'TCMB popüler kurlar (USD, EUR, GBP, CHF, Altın vb.)'],
+      ['turkiyem doviz --tum', 'Merkez Bankası bültenindeki tüm döviz kurları'],
+    ],
+  },
+  {
+    title: 'İBB / İETT Servisleri (İstanbul)',
+    icon: icons.ibb,
+    rows: [
+      ['turkiyem ibb hatlar [arama]', 'IETT hat listesini sorgula veya filtrele'],
+      ['turkiyem ibb duraklar [arama]', 'IETT durak listesini sorgula veya ara'],
+      ['turkiyem ibb filo', 'IETT filo araç konumlarını göster'],
+      ['turkiyem ibb garaj', 'İstanbul\'daki 86 İETT garajını listele'],
+      ['turkiyem ibb kaza', 'Güncel kaza ve yol çalışması lokasyonları'],
     ],
   },
 ];
@@ -111,7 +134,7 @@ export function printHelp() {
   printBanner();
 
   const allCmds = CATEGORIES.flatMap((c) => c.rows.map(([cmd]) => cmd));
-  const cmdWidth = Math.min(44, Math.max(...allCmds.map((c) => c.length)) + 2);
+  const cmdWidth = Math.min(46, Math.max(...allCmds.map((c) => c.length)) + 2);
 
   for (const category of CATEGORIES) {
     console.log(colors.accentBold(`  ${category.icon}  ${category.title}`));

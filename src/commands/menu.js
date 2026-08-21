@@ -94,6 +94,15 @@ export async function showMenu() {
             return;
         }
 
+        if (cmd.toLowerCase() === 'help' || cmd.toLowerCase() === 'yardım' || cmd.toLowerCase() === '?') {
+            console.log('');
+            const { printHelp } = await import('../utils/banner.js');
+            printHelp();
+            printSessionHeader();
+            rl.prompt();
+            return;
+        }
+
         const args = cmd.split(' ').filter(Boolean);
 
         if (args.length > 0) {

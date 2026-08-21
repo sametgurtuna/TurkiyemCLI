@@ -41,10 +41,19 @@ const program = new Command();
 
 program
   .name('turkiyem')
-  .description('Türkiye Toplu Taşıma ve Deprem CLI')
+  .description('Türkiye Toplu Taşıma, Deprem, Eczane, Şarj & Hava Durumu CLI')
   .version(pkg.version, '-v, --version', 'Versiyon göster')
   .helpOption('-h, --help', 'Yardım göster')
   .addHelpCommand(false);
+
+program.outputHelp = () => {
+  printHelp();
+};
+
+program.on('--help', () => {
+  printHelp();
+  process.exit(0);
+});
 
 program
   .command('sehir [sehir]')
