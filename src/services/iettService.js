@@ -219,18 +219,72 @@ function extractLiveSoapResultJson(xmlText) {
   return JSON.parse(jsonText);
 }
 
-function normalizeLiveVehicles(records) {
-  return records.map((item) => ({
-    vehicleDoorNo: item.kapino || '-',
-    longitude: item.boylam || '-',
-    latitude: item.enlem || '-',
-    routeCode: item.hatkodu || '-',
-    routeVariantCode: item.guzergahkodu || '-',
-    routeName: item.hatad || '-',
-    direction: item.yon || '-',
-    lastLocationTime: item.son_konum_zamani || '-',
-    nearestStopCode: item.yakinDurakKodu || '-',
-  }));
+export async function fetchIettStopsDictionary() {
+  const cacheKey = 'iett_stops_dictionary';
+  const cached = getCached(cacheKey);
+  if (cached && typeof cached === 'object' && Object.keys(cached).length > 0) {
+    return cached;
+  }
+
+  try {
+    const body = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetDurak_json xmlns="http://tempuri.org/">
+      <DurakKodu></DurakKodu>
+    </GetDurak_json>
+  </soap:Body>
+</soap:Envelope>`;
+
+    const response = await axios.post(HAT_DURAK_GUZERGAH_URL, body, {
+      headers: {
+        'Content-Type': 'text/xml; charset=utf-8',
+        SOAPAction: 'http://tempuri.org/GetDurak_json',
+        ...API_HEADERS,
+      },
+      timeout: 15000,
+    });
+
+    const match = response.data.match(/<GetDurak_jsonResult>([\s\S]*?)<\/GetDurak_jsonResult>/i);
+    if (!match || !match[1]) return {};
+
+    const rawList = JSON.parse(match[1].trim() || '[]');
+    const dict = {};
+    for (const item of rawList) {
+      if (item.SDURAKKODU && item.SDURAKADI) {
+        dict[String(item.SDURAKKODU)] = decodeMojibake(item.SDURAKADI);
+      }
+    }
+
+    if (Object.keys(dict).length > 0) {
+      setCached(cacheKey, dict, CACHE_TTL.GTFS || 604800);
+    }
+    return dict;
+  } catch {
+    return {};
+  }
+}
+
+function normalizeLiveVehicles(records, stopsDict = {}) {
+  return records.map((item) => {
+    const stopCode = item.yakinDurakKodu ? String(item.yakinDurakKodu) : '-';
+    const stopName = stopsDict[stopCode] || (stopCode !== '-' ? stopCode : '-');
+
+    return {
+      vehicleDoorNo: item.kapino || '-',
+      longitude: item.boylam || '-',
+      latitude: item.enlem || '-',
+      routeCode: item.hatkodu || '-',
+      routeVariantCode: item.guzergahkodu || '-',
+      routeName: decodeMojibake(item.hatad || '-'),
+      direction: decodeMojibake(item.yon || '-'),
+      lastLocationTime: item.son_konum_zamani || '-',
+      nearestStopCode: stopCode,
+      nearestStopName: stopName,
+    };
+  });
 }
 
 function parseDateValue(value) {
@@ -448,7 +502,8 @@ export async function fetchIettLiveVehicles(routeCode) {
     }
 
     const parsed = extractLiveSoapResultJson(response.data);
-    const vehicles = normalizeLiveVehicles(parsed);
+    const stopsDict = await fetchIettStopsDictionary();
+    const vehicles = normalizeLiveVehicles(parsed, stopsDict);
 
     if (vehicles.length === 0) {
       throw new Error(`"${routeCode}" hattı için aktif araç konumu bulunamadı.`);

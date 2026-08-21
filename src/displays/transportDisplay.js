@@ -136,18 +136,22 @@ export function createIettLiveDetailTable(liveData) {
       chalk.white.bold('Yakın Durak'),
       chalk.white.bold('Son Konum Zamanı'),
     ],
-    colWidths: [10, 24, 12, 12, 14, 22],
+    colWidths: [10, 22, 12, 12, 28, 22],
     style: { head: [], border: ['gray'] },
     wordWrap: true,
   });
 
   for (const vehicle of liveData.vehicles || []) {
+    const stopDisplay = vehicle.nearestStopName && vehicle.nearestStopName !== '-'
+      ? vehicle.nearestStopName
+      : (vehicle.nearestStopCode || '-');
+
     table.push([
       vehicle.vehicleDoorNo || '-',
       vehicle.direction || '-',
       String(vehicle.latitude ?? '-'),
       String(vehicle.longitude ?? '-'),
-      vehicle.nearestStopCode || '-',
+      chalk.cyan(stopDisplay),
       vehicle.lastLocationTime || '-',
     ]);
   }
