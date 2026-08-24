@@ -113,12 +113,24 @@ export function createStationDetailTable(st) {
     { [chalk.cyan('Harita')]: chalk.blue.underline(mapLink) }
   );
 
+  if (st.usageCost) {
+    table.push({ [chalk.cyan('Tarife / Ücret')]: chalk.yellow(st.usageCost) });
+  }
+
   if (st.status || st.availability) {
     table.push({ [chalk.cyan('Genel Durum')]: chalk.green(st.status || st.availability) });
   }
 
   if (st.operatorPhone || st.phone) {
     table.push({ [chalk.cyan('Destek / Telefon')]: st.operatorPhone || st.phone });
+  }
+
+  if (st.website) {
+    table.push({ [chalk.cyan('Web Sitesi')]: chalk.blue.underline(st.website) });
+  }
+
+  if (st.accessComments) {
+    table.push({ [chalk.cyan('Erişim Notu')]: chalk.gray(st.accessComments) });
   }
 
   return table.toString();

@@ -11,7 +11,7 @@ import {
   createStationDetailTable,
   createSocketsTable
 } from '../displays/sarjDisplay.js';
-import { getCity } from '../utils/config.js';
+import { getCity, getSarjApiKey, setSarjApiKey } from '../utils/config.js';
 
 export async function sarjSaglayicilar() {
   const spinner = ora('Şarj sağlayıcıları listesi alınıyor...').start();
@@ -27,7 +27,7 @@ export async function sarjSaglayicilar() {
 
 export async function sarjAra(sorgu, options = {}) {
   const query = sorgu || options.sehir || getCity() || 'istanbul';
-  const spinner = ora(`"${query.toUpperCase()}" şarj istasyonları aranıyor...`).start();
+  const spinner = ora(`"${query.toUpperCase()}" şarj istasyonları aranıyor (Open Charge Map)...`).start();
 
   try {
     const stations = await searchChargingStations(query, options);
@@ -53,7 +53,7 @@ export async function sarjAra(sorgu, options = {}) {
 
 export async function sarjDetay(istasyonId) {
   if (!istasyonId) {
-    console.log(chalk.red('Lütfen bir istasyon ID belirtin. Örnek: turkiyem sarj detay 14586117'));
+    console.log(chalk.red('Lütfen bir istasyon ID belirtin. Örnek: turkiyem sarj detay 195432'));
     return;
   }
 
@@ -74,3 +74,22 @@ export async function sarjDetay(istasyonId) {
     spinner.fail(chalk.red('Hata: ' + error.message));
   }
 }
+
+export function sarjKeyAyarla(apiKey) {
+  if (!apiKey) {
+    const current = getSarjApiKey();
+    if (current) {
+      const masked = current.length > 8 ? `${current.slice(0, 4)}...${current.slice(-4)}` : '****';
+      console.log(chalk.green(`Mevcut Open Charge Map API anahtarı: ${masked}`));
+    } else {
+      console.log(chalk.yellow('Kayıtlı Open Charge Map API anahtarı bulunamadı.'));
+      console.log(chalk.gray('\nÜcretsiz anahtar almak için: https://openchargemap.org/site/develop/api'));
+      console.log(chalk.cyan('Kaydetmek için: turkiyem sarj key <API_KEY>'));
+    }
+    return;
+  }
+
+  setSarjApiKey(apiKey);
+  console.log(chalk.green('Open Charge Map API anahtarı başarıyla kaydedildi.'));
+}
+

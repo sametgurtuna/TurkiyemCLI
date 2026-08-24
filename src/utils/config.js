@@ -61,6 +61,23 @@ export function setEczaneApiKey(key) {
   writeConfig(config);
 }
 
+export function getSarjApiKey() {
+  if (process.env.OPENCHARGEMAP_API_KEY) {
+    return process.env.OPENCHARGEMAP_API_KEY.trim();
+  }
+  if (process.env.SARJ_API_KEY) {
+    return process.env.SARJ_API_KEY.trim();
+  }
+  const config = readConfig();
+  return config.sarjApiKey || config.openChargeMapApiKey || null;
+}
+
+export function setSarjApiKey(key) {
+  const config = readConfig();
+  config.sarjApiKey = key ? key.trim() : null;
+  writeConfig(config);
+}
+
 export function resetConfig() {
   writeConfig({ ...DEFAULT_CONFIG });
 }

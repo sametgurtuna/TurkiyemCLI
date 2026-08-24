@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  10 şehrin toplu taşıma verileri, 81 ilin nöbetçi eczaneleri & akaryakıt fiyatları, Diyanet namaz vakitleri, İBB canlı trafik endeksi, vapur seferleri, elektrikli araç şarj istasyonları (sarj.dev), İZSU su kesintisi & baraj verileri, AFAD deprem bilgileri, Open-Meteo hava durumu, TCMB döviz kurları — hepsi tek bir <code>npm</code> paketi içinde.
+  10 şehrin toplu taşıma verileri, 81 ilin nöbetçi eczaneleri & akaryakıt fiyatları, Diyanet namaz vakitleri, İBB canlı trafik endeksi, vapur seferleri, elektrikli araç şarj istasyonları (Open Charge Map), İZSU su kesintisi & baraj verileri, AFAD deprem bilgileri, Open-Meteo hava durumu, TCMB döviz kurları — hepsi tek bir <code>npm</code> paketi içinde.
 </p>
 
 ---
@@ -34,7 +34,7 @@
   - [🚗 Canlı Trafik Yoğunluk Endeksi (İBB TKM)](#-canlı-trafik-yoğunluk-endeksi-ibb-tkm)
   - [🚢 Vapur Seferleri & İskeleler (Şehir Hatları & İZDENİZ)](#-vapur-seferleri--iskeleler-şehir-hatları--izdeniz)
   - [Sağlık & Nöbetçi Eczane (81 İl / EczaneAPI)](#sağlık--nöbetçi-eczane-81-il--eczaneapi)
-  - [Elektrikli Araç Şarj İstasyonları (sarj.dev)](#-elektrikli-araç-şarj-istasyonları-sarjdev)
+  - [Elektrikli Araç Şarj İstasyonları (Open Charge Map)](#-elektrikli-araç-şarj-istasyonları-open-charge-map)
   - [İZSU (İzmir Su & Baraj)](#izsu-izmir-su--baraj)
   - [Deprem (AFAD)](#deprem-afad)
   - [Hava Durumu & Kalite (Open-Meteo)](#hava-durumu--kalite-open-meteo)
@@ -262,13 +262,14 @@ turkiyem eczane yakin 41.0082 28.9784 5 # Koordinata en yakın nöbetçi eczanel
 turkiyem eczane key <API_KEY>           # EczaneAPI anahtarını yapılandır
 ```
 
-### ⚡ Elektrikli Araç Şarj İstasyonları (sarj.dev)
+### ⚡ Elektrikli Araç Şarj İstasyonları (Open Charge Map)
 
 ```bash
-turkiyem sarj saglayicilar               # Tüm şarj sağlayıcıları ve istasyon sayıları
+turkiyem sarj saglayicilar               # Tüm şarj sağlayıcıları (ZES, Trugo, Eşarj, Voltrun, Tesla vb.)
 turkiyem sarj ara kadikoy                # Kadıköy'deki şarj istasyonları
 turkiyem sarj ara zes                    # ZES şarj istasyonları
-turkiyem sarj detay 14586117             # Soket tipleri (CCS/Type2), kW güç, AC/DC ve fiyatlar
+turkiyem sarj detay 195432               # Soket tipleri (CCS/Type2), kW güç, AC/DC ve tarifeler
+turkiyem sarj key <API_KEY>              # Open Charge Map API anahtarını yapılandır
 ```
 
 ### İZSU (İzmir Su & Baraj)
@@ -335,7 +336,7 @@ turkiyem/
 │   │   ├── trafik.js               # İBB canlı trafik endeksi komutları
 │   │   ├── vapur.js                # Şehir Hatları & İZDENİZ vapur komutları
 │   │   ├── eczane.js               # Nöbetçi eczane komutları (EczaneAPI & Açık Veri)
-│   │   ├── sarj.js                 # Elektrikli araç şarj istasyonu komutları (sarj.dev)
+│   │   ├── sarj.js                 # Elektrikli araç şarj istasyonu komutları (Open Charge Map)
 │   │   ├── izsu.js                 # İZSU komutları
 │   │   ├── deprem.js               # AFAD deprem komutları
 │   │   ├── hava.js                 # Hava durumu komutları
@@ -359,7 +360,7 @@ turkiyem/
 │   │   ├── samsunService.js        # Samulaş açık veri servisi
 │   │   ├── mersinService.js        # Mersin belediye servisi
 │   │   ├── eczaneService.js        # EczaneAPI & İzmir/Kayseri açık veri servisi
-│   │   ├── sarjService.js          # sarj.dev şarj sağlayıcı & istasyon servisi
+│   │   ├── sarjService.js          # Open Charge Map şarj sağlayıcı & istasyon servisi
 │   │   ├── afadService.js          # AFAD deprem servisi
 │   │   ├── weatherService.js       # Open-Meteo hava servisi
 │   │   └── tcmbService.js          # TCMB döviz XML servisi
@@ -426,7 +427,7 @@ npm test
 ✔ Trabzon Transit Service
 ✔ Samsun Transit Service
 ✔ Mersin Transit Service
-✔ EV Charging Providers Service (sarj.dev)
+✔ EV Charging Providers & Station Service (Open Charge Map)
 ✔ Fuel Prices Service (Opet)
 ✔ Prayer Times Service (Diyanet)
 ✔ IBB Traffic Index Service

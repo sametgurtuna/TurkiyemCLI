@@ -60,7 +60,7 @@ const subcommands = {
     'hava': ['guncel', 'saatlik', 'kalite'],
     'deprem': ['son24', '7gun', 'buyukluk'],
     'eczane': ['nobetci', 'detay', 'sehirler', 'ilceler', 'yakin', 'key', 'ara'],
-    'sarj': ['saglayicilar', 'ara', 'detay'],
+    'sarj': ['saglayicilar', 'ara', 'detay', 'key'],
     'ibb': ['hatlar', 'duraklar', 'filo', 'garaj', 'kaza'],
     'izsu': ['kesinti', 'baraj', 'uretim', 'sube', 'analiz']
 };

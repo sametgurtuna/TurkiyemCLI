@@ -90,11 +90,18 @@ test('Mersin Transit Service', async () => {
   assert.ok(Array.isArray(routes) && routes.length > 10, 'Mersin hat listesi gelmeli');
 });
 
-test('EV Charging Providers Service (sarj.dev)', async () => {
-  const { fetchChargingProviders } = await import('../src/services/sarjService.js');
+test('EV Charging Providers & Station Service (Open Charge Map)', async () => {
+  const { fetchChargingProviders, searchChargingStations, fetchChargingStationDetail } = await import('../src/services/sarjService.js');
   const providers = await fetchChargingProviders();
   assert.ok(Array.isArray(providers) && providers.length > 0, 'Şarj sağlayıcıları listesi gelmeli');
   assert.ok(providers.some(p => (p.slug || p.code || '').toLowerCase().includes('zes') || (p.name || '').includes('ZES')));
+
+  const stations = await searchChargingStations('kadikoy');
+  assert.ok(Array.isArray(stations) && stations.length > 0, 'Kadıköy için istasyon listesi gelmeli');
+
+  const detail = await fetchChargingStationDetail(stations[0].id);
+  assert.ok(detail.name, 'İstasyon adı olmalı');
+  assert.ok(Array.isArray(detail.sockets), 'Soket listesi olmalı');
 });
 
 test('Fuel Prices Service (Opet)', async () => {

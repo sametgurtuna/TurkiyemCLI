@@ -20,7 +20,7 @@ import {
   eczaneYakin,
   eczaneKeyAyarla
 } from './commands/eczane.js';
-import { sarjSaglayicilar, sarjAra, sarjDetay } from './commands/sarj.js';
+import { sarjSaglayicilar, sarjAra, sarjDetay, sarjKeyAyarla } from './commands/sarj.js';
 import { ibbHatlar, ibbDuraklar, ibbFilo, ibbGaraj, ibbKaza } from './commands/ibb.js';
 import { registerIzsuCommands } from './commands/izsu.js';
 import { yakitFiyatlari } from './commands/yakit.js';
@@ -201,7 +201,7 @@ eczaneCmd
 
 const sarjCmd = program
   .command('sarj')
-  .description('Elektrikli araç şarj istasyonları ve sağlayıcı sorguları (sarj.dev)');
+  .description('Elektrikli araç şarj istasyonları ve sağlayıcı sorguları (Open Charge Map)');
 
 sarjCmd
   .command('saglayicilar')
@@ -215,6 +215,7 @@ sarjCmd
   .command('ara [sorgu]')
   .description('Şehir, ilçe veya sağlayıcı adına göre şarj istasyonu ara')
   .option('-s, --sehir <sehir>', 'Belirli bir şehir için filtrele')
+  .option('-m, --mesafe <km>', 'Arama yarıçapı (km, varsayılan: 30)')
   .action(async (sorgu, options) => {
     await sarjAra(sorgu, options);
   });
@@ -224,6 +225,13 @@ sarjCmd
   .description('Belirtilen şarj istasyonunun detaylı soket, güç ve adres bilgilerini göster')
   .action(async (istasyonId) => {
     await sarjDetay(istasyonId);
+  });
+
+sarjCmd
+  .command('key [apiKey]')
+  .description('Open Charge Map API anahtarını kaydet veya kontrol et')
+  .action((apiKey) => {
+    sarjKeyAyarla(apiKey);
   });
 
 program

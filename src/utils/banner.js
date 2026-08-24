@@ -82,12 +82,13 @@ export const CATEGORIES = [
     ],
   },
   {
-    title: 'Elektrikli Araç Şarj İstasyonları (sarj.dev)',
+    title: 'Elektrikli Araç Şarj İstasyonları (Open Charge Map)',
     icon: icons.charging,
     rows: [
       ['turkiyem sarj saglayicilar', 'Tüm şarj ağı işletmecileri (ZES, Trugo, Eşarj, Voltrun vb.)'],
       ['turkiyem sarj ara [sorgu]', 'Şehir, ilçe veya sağlayıcı adına göre şarj istasyonu ara'],
-      ['turkiyem sarj detay <istasyonId>', 'Soket tipleri (CCS/Type2), güç (kW), AC/DC ve fiyatlar'],
+      ['turkiyem sarj detay <istasyonId>', 'Soket tipleri (CCS/Type2), güç (kW), AC/DC ve tarifeler'],
+      ['turkiyem sarj key [apiKey]', 'Open Charge Map API anahtarını kaydet veya kontrol et'],
     ],
   },
   {
