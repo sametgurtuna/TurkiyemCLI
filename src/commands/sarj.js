@@ -94,11 +94,10 @@ export function sarjKeyAyarla(apiKey) {
     const current = getSarjApiKey();
     if (current) {
       const masked = current.length > 8 ? `${current.slice(0, 4)}...${current.slice(-4)}` : '****';
-      console.log(chalk.green(`Mevcut Open Charge Map API anahtarı: ${masked}`));
+      console.log(chalk.green(`Özel Open Charge Map API anahtarınız: ${masked}`));
     } else {
-      console.log(chalk.yellow('Kayıtlı Open Charge Map API anahtarı bulunamadı.'));
-      console.log(chalk.gray('\nÜcretsiz anahtar almak için: https://openchargemap.org/site/develop/api'));
-      console.log(chalk.cyan('Kaydetmek için: turkiyem sarj key <API_KEY>'));
+      console.log(chalk.green('✔ Dahili Open Charge Map istemci anahtarı devrede (Canlı veri otomatik açık).'));
+      console.log(chalk.gray('Kendinize ait özel bir anahtar kaydetmek isterseniz: turkiyem sarj key <API_KEY>'));
     }
     return;
   }

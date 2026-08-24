@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { getCached, setCached, CACHE_TTL } from '../utils/cache.js';
-import { getSarjApiKey } from '../utils/config.js';
+import { getSarjApiKey, getCity } from '../utils/config.js';
 
 const OCM_API_BASE_URL = process.env.OCM_API_BASE_URL || 'https://api.openchargemap.io/v3';
 const GEOCODING_URL = 'https://geocoding-api.open-meteo.com/v1/search';
@@ -96,8 +96,26 @@ export async function getUserCurrentLocation() {
   return null;
 }
 
-// Türkiye Şehir Koordinatları (Hızlı yerel eşleşme için)
+// Türkiye Şehir ve Popüler İlçe Koordinatları
 const TURKEY_CITY_COORDS = {
+  didim: { lat: 37.3734, lng: 27.2573, name: 'Didim, Aydın' },
+  aydin: { lat: 37.8444, lng: 27.8458, name: 'Aydın' },
+  kusadasi: { lat: 37.8579, lng: 27.2610, name: 'Kuşadası, Aydın' },
+  soke: { lat: 37.7533, lng: 27.4042, name: 'Söke, Aydın' },
+  cesme: { lat: 38.3236, lng: 26.3040, name: 'Çeşme, İzmir' },
+  alacati: { lat: 38.2818, lng: 26.3743, name: 'Alaçatı, İzmir' },
+  fethiye: { lat: 36.6217, lng: 29.1164, name: 'Fethiye, Muğla' },
+  marmaris: { lat: 36.8550, lng: 28.2741, name: 'Marmaris, Muğla' },
+  datca: { lat: 36.7247, lng: 27.6864, name: 'Datça, Muğla' },
+  bodrum: { lat: 37.0344, lng: 27.4305, name: 'Bodrum, Muğla' },
+  milas: { lat: 37.3164, lng: 27.7839, name: 'Milas, Muğla' },
+  mugla: { lat: 37.2153, lng: 28.3636, name: 'Muğla' },
+  antalya: { lat: 36.8969, lng: 30.7133, name: 'Antalya' },
+  muratpasa: { lat: 36.8841, lng: 30.7056, name: 'Muratpaşa, Antalya' },
+  alanya: { lat: 36.5438, lng: 31.9998, name: 'Alanya, Antalya' },
+  kas: { lat: 36.1994, lng: 29.6377, name: 'Kaş, Antalya' },
+  kemer: { lat: 36.6027, lng: 30.5594, name: 'Kemer, Antalya' },
+  manavgat: { lat: 36.7869, lng: 31.4422, name: 'Manavgat, Antalya' },
   istanbul: { lat: 41.0082, lng: 28.9784, name: 'İstanbul' },
   kadikoy: { lat: 40.9927, lng: 29.0277, name: 'Kadıköy, İstanbul' },
   besiktas: { lat: 41.0428, lng: 29.0077, name: 'Beşiktaş, İstanbul' },
@@ -114,8 +132,6 @@ const TURKEY_CITY_COORDS = {
   bursa: { lat: 40.1885, lng: 29.0610, name: 'Bursa' },
   nilufer: { lat: 40.2138, lng: 28.9803, name: 'Nilüfer, Bursa' },
   osmangazi: { lat: 40.1976, lng: 29.0603, name: 'Osmangazi, Bursa' },
-  antalya: { lat: 36.8969, lng: 30.7133, name: 'Antalya' },
-  muratpasa: { lat: 36.8841, lng: 30.7056, name: 'Muratpaşa, Antalya' },
   adana: { lat: 37.0000, lng: 35.3213, name: 'Adana' },
   kocaeli: { lat: 40.7654, lng: 29.9408, name: 'Kocaeli' },
   izmit: { lat: 40.7654, lng: 29.9408, name: 'İzmit, Kocaeli' },
@@ -128,10 +144,10 @@ const TURKEY_CITY_COORDS = {
   kayseri: { lat: 38.7205, lng: 35.4826, name: 'Kayseri' },
   duzce: { lat: 40.8438, lng: 31.1565, name: 'Düzce' },
   sakarya: { lat: 40.7731, lng: 30.3948, name: 'Sakarya' },
-  mugla: { lat: 37.2153, lng: 28.3636, name: 'Muğla' },
-  bodrum: { lat: 37.0344, lng: 27.4305, name: 'Bodrum, Muğla' },
   canakkale: { lat: 40.1553, lng: 26.4142, name: 'Çanakkale' },
-  denizli: { lat: 37.7765, lng: 29.0864, name: 'Denizli' }
+  denizli: { lat: 37.7765, lng: 29.0864, name: 'Denizli' },
+  balikesir: { lat: 39.6484, lng: 27.8826, name: 'Balıkesir' },
+  ayvalik: { lat: 39.3197, lng: 26.6969, name: 'Ayvalık, Balıkesir' }
 };
 
 // Türkiye Şarj İstasyonu Sağlayıcıları
@@ -387,18 +403,30 @@ export async function searchChargingStations(query, options = {}) {
   let userLocation = null;
   let searchLocation = null;
 
-  // 1. Kullanıcı konumunu arka planda tespit et
+  // 1. Kullanıcı IP konumunu arka planda tespit et
   userLocation = await getUserCurrentLocation();
 
   // 2. Arama koordinatını belirle
+  const configuredCity = options.sehir || getCity();
   const isNearbyQuery = !normQuery || normQuery === 'yakin' || normQuery === 'en yakin' || normQuery === 'nearby';
-  if (isNearbyQuery) {
-    searchLocation = userLocation ? { lat: userLocation.latitude, lng: userLocation.longitude, name: userLocation.name } : TURKEY_CITY_COORDS.istanbul;
-  } else {
+
+  if (!isNearbyQuery) {
+    // Doğrudan kelime/semt/şehir araması
     searchLocation = await resolveLocationCoordinates(rawQuery);
+  } else if (configuredCity) {
+    // Kullanıcı turkiyem sehir ile şehir seçtiyse
+    searchLocation = await resolveLocationCoordinates(configuredCity);
+  } else if (userLocation) {
+    // IP tabanlı yaklaşık konum
+    searchLocation = { lat: userLocation.latitude, lng: userLocation.longitude, name: userLocation.name };
+  } else {
+    searchLocation = TURKEY_CITY_COORDS.istanbul;
   }
 
-  const originCoords = userLocation || (searchLocation ? { latitude: searchLocation.lat, longitude: searchLocation.lng } : null);
+  // Mesafe hesabı için merkez nokta
+  const originCoords = searchLocation
+    ? { latitude: searchLocation.lat, longitude: searchLocation.lng, name: searchLocation.name }
+    : userLocation;
 
   if (apiKey) {
     try {
@@ -504,7 +532,17 @@ export async function fetchChargingStationDetail(stationId) {
   if (cached) return cached;
 
   const apiKey = getEffectiveClientToken();
-  const userLocation = await getUserCurrentLocation();
+  const configuredCity = getCity();
+  let originLocation = null;
+  if (configuredCity) {
+    const loc = await resolveLocationCoordinates(configuredCity);
+    if (loc) {
+      originLocation = { latitude: loc.lat, longitude: loc.lng, name: loc.name };
+    }
+  }
+  if (!originLocation) {
+    originLocation = await getUserCurrentLocation();
+  }
 
   if (apiKey) {
     try {
@@ -522,7 +560,7 @@ export async function fetchChargingStationDetail(stationId) {
 
       const poi = Array.isArray(response.data) ? response.data[0] : response.data;
       if (poi && poi.ID) {
-        const detail = mapOcmPoiToStation(poi, userLocation);
+        const detail = mapOcmPoiToStation(poi, originLocation);
         setCached(cacheKey, detail, CACHE_TTL.DEFAULT);
         return detail;
       }
@@ -534,10 +572,10 @@ export async function fetchChargingStationDetail(stationId) {
   const fallback = FALLBACK_STATIONS.find(s => String(s.id) === id);
   if (fallback) {
     let distanceKm = null;
-    if (userLocation && fallback.location) {
+    if (originLocation && fallback.location) {
       distanceKm = calculateDistanceKm(
-        userLocation.latitude,
-        userLocation.longitude,
+        originLocation.latitude || originLocation.lat,
+        originLocation.longitude || originLocation.lng,
         fallback.location.latitude,
         fallback.location.longitude
       );
