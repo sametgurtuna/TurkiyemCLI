@@ -91,13 +91,17 @@ test('Mersin Transit Service', async () => {
 });
 
 test('EV Charging Providers & Station Service (Open Charge Map)', async () => {
-  const { fetchChargingProviders, searchChargingStations, fetchChargingStationDetail } = await import('../src/services/sarjService.js');
+  const { fetchChargingProviders, searchChargingStations, fetchChargingStationDetail, calculateDistanceKm } = await import('../src/services/sarjService.js');
   const providers = await fetchChargingProviders();
   assert.ok(Array.isArray(providers) && providers.length > 0, 'Şarj sağlayıcıları listesi gelmeli');
   assert.ok(providers.some(p => (p.slug || p.code || '').toLowerCase().includes('zes') || (p.name || '').includes('ZES')));
 
-  const stations = await searchChargingStations('kadikoy');
+  const result = await searchChargingStations('kadikoy');
+  const stations = Array.isArray(result) ? result : result.stations;
   assert.ok(Array.isArray(stations) && stations.length > 0, 'Kadıköy için istasyon listesi gelmeli');
+
+  const dist = calculateDistanceKm(41.0082, 28.9784, 40.9927, 29.0277);
+  assert.ok(typeof dist === 'number' && dist > 0, 'Mesafe km olarak hesaplanmalı');
 
   const detail = await fetchChargingStationDetail(stations[0].id);
   assert.ok(detail.name, 'İstasyon adı olmalı');

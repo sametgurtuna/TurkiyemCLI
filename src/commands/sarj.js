@@ -26,16 +26,30 @@ export async function sarjSaglayicilar() {
 }
 
 export async function sarjAra(sorgu, options = {}) {
-  const query = sorgu || options.sehir || getCity() || 'istanbul';
-  const spinner = ora(`"${query.toUpperCase()}" şarj istasyonları aranıyor (Open Charge Map)...`).start();
+  const isNearby = !sorgu && !options.sehir;
+  const spinnerText = isNearby
+    ? 'Anlık konumunuz belirleniyor ve en yakın şarj istasyonları aranıyor...'
+    : `"${(sorgu || options.sehir).toUpperCase()}" şarj istasyonları aranıyor...`;
+  const spinner = ora(spinnerText).start();
 
   try {
-    const stations = await searchChargingStations(query, options);
-    spinner.succeed(`Şarj istasyonları bulundu (${stations.length} sonuç).`);
+    const result = await searchChargingStations(sorgu, options);
+    const stations = Array.isArray(result) ? result : (result.stations || []);
+    const userLocation = result.userLocation;
+    const searchLocation = result.searchLocation;
+
+    spinner.succeed(`Şarj istasyonları bulundu (${stations.length} istasyon - Mesafeye göre sıralı).`);
 
     if (stations.length === 0) {
-      console.log(chalk.yellow(`"${query}" ile eşleşen şarj istasyonu bulunamadı.`));
+      console.log(chalk.yellow(`\n"${sorgu || 'Konumunuz'}" çevresinde şarj istasyonu bulunamadı.`));
       return;
+    }
+
+    if (userLocation || searchLocation) {
+      const locText = userLocation?.name || searchLocation?.name;
+      if (locText) {
+        console.log(chalk.cyan(`\n📍 Konum: ${chalk.bold(locText)}`));
+      }
     }
 
     let displayStations = stations;

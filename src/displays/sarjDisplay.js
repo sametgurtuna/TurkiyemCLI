@@ -45,10 +45,11 @@ export function createStationSearchTable(stations) {
       chalk.white.bold('İstasyon Adı'),
       chalk.white.bold('Sağlayıcı'),
       chalk.white.bold('İl / İlçe'),
+      chalk.white.bold('Mesafe'),
       chalk.white.bold('Soket & Güç'),
       chalk.white.bold('Harita')
     ],
-    colWidths: [12, 28, 16, 20, 22, 26],
+    colWidths: [10, 26, 16, 16, 11, 20, 24],
     style: { head: [], border: ['gray'] },
     wordWrap: true,
   });
@@ -60,6 +61,7 @@ export function createStationSearchTable(stations) {
     const city = s.city?.name || s.city || '';
     const district = s.district?.name || s.district || '';
     const locationStr = [city, district].filter(Boolean).join(' / ') || s.address || '-';
+    const distanceStr = s.distanceKm != null ? chalk.green.bold(`${s.distanceKm} km`) : chalk.gray('-');
 
     let socketSummary = '-';
     if (Array.isArray(s.sockets) && s.sockets.length > 0) {
@@ -77,6 +79,7 @@ export function createStationSearchTable(stations) {
       chalk.cyan(name),
       chalk.magenta(provider),
       locationStr,
+      distanceStr,
       chalk.green(socketSummary),
       chalk.blue.underline(mapLink)
     ]);
@@ -112,6 +115,10 @@ export function createStationDetailTable(st) {
     { [chalk.cyan('Açık Adres')]: address },
     { [chalk.cyan('Harita')]: chalk.blue.underline(mapLink) }
   );
+
+  if (st.distanceKm != null) {
+    table.push({ [chalk.cyan('Konumunuza Mesafe')]: chalk.green.bold(`${st.distanceKm} km`) });
+  }
 
   if (st.usageCost) {
     table.push({ [chalk.cyan('Tarife / Ücret')]: chalk.yellow(st.usageCost) });
